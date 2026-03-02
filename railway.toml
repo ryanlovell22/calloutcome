@@ -6,4 +6,4 @@ startCommand = "FLASK_APP='app:create_app()' flask db upgrade && gunicorn 'app:c
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 healthcheckPath = "/health"
-healthcheckTimeout = 10
+healthcheckTimeout = 60
