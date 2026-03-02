@@ -109,7 +109,9 @@
                 <td>{{ call.customer_name or '—' }}</td>
                 <td>{{ '%d:%02d'|format(call.call_duration // 60, call.call_duration % 60) if call.call_duration else '—' }}</td>
                 <td>
-                    {% if call.classification == 'JOB_BOOKED' %}
+                    {% if call.call_outcome == 'missed' %}
+                        <mark class="badge-missed">Missed</mark>
+                    {% elif call.classification == 'JOB_BOOKED' %}
                         <mark class="badge-booked">Booked</mark>
                     {% elif call.classification == 'VOICEMAIL' %}
                         <mark class="badge-voicemail">Voicemail</mark>

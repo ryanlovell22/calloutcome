@@ -68,32 +68,31 @@ def index():
     except ValueError:
         pass
 
-    # Missed calls count: call_outcome=missed OR AI classified as VOICEMAIL
+    # Stats via DB aggregates (on the full filtered query, including missed)
     from sqlalchemy import or_
+    total = query.count()
+    booked = query.filter(Call.classification == "JOB_BOOKED").count()
+    not_booked = query.filter(Call.classification == "NOT_BOOKED").count()
     missed = query.filter(
         or_(
             Call.call_outcome.in_(["missed", "voicemail"]),
             Call.classification == "VOICEMAIL",
         )
     ).count()
-
-    # Stats via DB aggregates (on the filtered query, excluding true missed calls)
-    stats_query = query.filter(Call.call_outcome != "missed")
-    total = stats_query.count()
-    booked = stats_query.filter(Call.classification == "JOB_BOOKED").count()
-    not_booked = stats_query.filter(Call.classification == "NOT_BOOKED").count()
-    pending = stats_query.filter(Call.status.in_(["pending", "processing"])).count()
-    rate = round(booked / total * 100, 1) if total > 0 else 0
+    pending = query.filter(Call.status.in_(["pending", "processing"])).count()
+    # Conversion rate: booked out of answered+analysed calls (excludes missed/pending)
+    answered = booked + not_booked
+    rate = round(booked / answered * 100, 1) if answered > 0 else 0
 
     # Lead value via DB aggregate
     total_value = db.session.query(
         func.coalesce(func.sum(TrackingLine.cost_per_lead), 0)
     ).join(Call, Call.tracking_line_id == TrackingLine.id).filter(
-        Call.id.in_(stats_query.filter(Call.classification == "JOB_BOOKED").with_entities(Call.id))
+        Call.id.in_(query.filter(Call.classification == "JOB_BOOKED").with_entities(Call.id))
     ).scalar()
 
-    # Paginate the table query
-    pagination = stats_query.order_by(Call.call_date.desc()).paginate(page=page, per_page=50, error_out=False)
+    # Paginate the table query (all calls including missed)
+    pagination = query.order_by(Call.call_date.desc()).paginate(page=page, per_page=50, error_out=False)
     calls = pagination.items
 
     if current_user.user_type == "partner":
@@ -293,7 +292,7 @@ def export_csv():
     except ValueError:
         pass
 
-    calls = query.filter(Call.call_outcome != "missed").order_by(Call.call_date.desc()).all()
+    calls = query.order_by(Call.call_date.desc()).all()
 
     # Build CSV
     output = io.StringIO()
@@ -306,7 +305,7 @@ def export_csv():
             call.caller_number or '',
             call.customer_name or '',
             f"{call.call_duration // 60}:{call.call_duration % 60:02d}" if call.call_duration else '',
-            call.classification or call.status,
+            'Missed' if call.call_outcome == 'missed' else (call.classification or call.status),
             call.booking_time or '',
             call.summary or '',
         ])
