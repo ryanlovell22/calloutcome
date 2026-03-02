@@ -252,6 +252,67 @@ def call_recording(call_id):
     )
 
 
+@bp.route("/calls/<int:call_id>/compare-openai", methods=["POST"])
+@login_required
+def compare_openai(call_id):
+    """Re-analyse a Twilio CI call with OpenAI and show results side by side."""
+    if current_user.user_type != "account":
+        flash("You don't have permission to do that.", "error")
+        return redirect(url_for("dashboard.index"))
+
+    call = Call.query.filter_by(
+        id=call_id, account_id=current_user.id
+    ).first_or_404()
+
+    # Only works on completed Twilio calls with a recording
+    if call.source != "twilio" or call.status != "completed" or not call.recording_url:
+        flash("Comparison only available for completed Twilio calls with a recording.", "error")
+        return redirect(url_for("dashboard.call_detail", call_id=call.id))
+
+    account = db.session.get(Account, current_user.id)
+    if not account or not account.twilio_account_sid or not account.twilio_auth_token_encrypted:
+        flash("Twilio credentials not configured.", "error")
+        return redirect(url_for("dashboard.call_detail", call_id=call.id))
+
+    try:
+        from ..ai_classifier import transcribe_recording, classify_transcript
+
+        # Download and transcribe via OpenAI Whisper (Twilio URLs need auth + .mp3)
+        twilio_auth = (account.twilio_account_sid, account.twilio_auth_token_encrypted)
+        openai_transcript = transcribe_recording(
+            f"{call.recording_url}.mp3", auth=twilio_auth
+        )
+
+        # Classify with GPT-4o-mini
+        business_name = None
+        if call.tracking_line and call.tracking_line.label:
+            business_name = call.tracking_line.label
+        openai_result = classify_transcript(
+            openai_transcript,
+            business_name=business_name,
+            call_date=call.call_date,
+        )
+
+        match = (
+            call.classification
+            and openai_result.get("classification")
+            and call.classification == openai_result["classification"]
+        )
+
+        return render_template(
+            "dashboard/compare_openai.html",
+            call=call,
+            openai_transcript=openai_transcript,
+            openai_result=openai_result,
+            match=match,
+            active_page="dashboard",
+        )
+
+    except Exception as e:
+        flash(f"OpenAI analysis failed: {e}", "error")
+        return redirect(url_for("dashboard.call_detail", call_id=call.id))
+
+
 @bp.route("/export")
 @login_required
 def export_csv():

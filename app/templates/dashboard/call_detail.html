@@ -57,6 +57,17 @@
         </table>
         {% endif %}
 
+        {% if current_user.user_type == 'account' and call.source == 'twilio' and call.recording_url %}
+        <!-- A/B Test: Re-analyse with OpenAI -->
+        <h5>Compare AI Pipelines</h5>
+        <form method="post" action="{{ url_for('dashboard.compare_openai', call_id=call.id) }}">
+            <button type="submit" id="compare-btn" onclick="this.setAttribute('aria-busy','true');this.disabled=true;this.textContent='Processing (15-30s)...';">
+                Re-analyse with OpenAI
+            </button>
+        </form>
+        <small style="color: var(--muted-color);">Costs ~$0.03-0.04. Results are not saved.</small>
+        {% endif %}
+
         {% if current_user.user_type == 'account' %}
         <!-- Manual Override -->
         <h5>Override Classification</h5>

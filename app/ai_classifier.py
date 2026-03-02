@@ -103,11 +103,12 @@ def _get_openai_client():
     return OpenAI(api_key=api_key)
 
 
-def transcribe_recording(recording_url):
+def transcribe_recording(recording_url, auth=None):
     """Download a recording and transcribe it using OpenAI Whisper.
 
     Args:
         recording_url: URL of the audio file to transcribe.
+        auth: Optional (username, password) tuple for HTTP Basic Auth.
 
     Returns:
         Transcript text string.
@@ -117,7 +118,7 @@ def transcribe_recording(recording_url):
 
     try:
         # Download the recording to a temp file
-        resp = requests.get(recording_url, timeout=60, stream=True)
+        resp = requests.get(recording_url, timeout=60, stream=True, auth=auth)
         resp.raise_for_status()
 
         with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
