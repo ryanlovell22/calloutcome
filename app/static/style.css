@@ -20,6 +20,13 @@
 article.flash-error {
     border-left: 4px solid var(--pico-color-red-500, #dc3545);
 }
+article.flash-success {
+    border-left: 4px solid #28a745;
+    background: rgba(40, 167, 69, 0.08);
+}
+article.flash-warning {
+    border-left: 4px solid #ffc107;
+}
 
 /* Table tweaks */
 table td, table th {
@@ -65,4 +72,44 @@ fieldset[role="group"] {
 .usage-banner a {
     color: inherit;
     font-weight: bold;
+}
+
+/* Connection success card */
+.connection-success {
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    border-radius: var(--pico-border-radius);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+}
+.connection-success-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #51cf66;
+    margin-bottom: 0.5rem;
+}
+.connection-success-title::before {
+    content: "\2713  ";
+}
+
+/* Help guide for credential setup */
+.help-guide {
+    background: rgba(99, 179, 237, 0.08);
+    border: 1px solid rgba(99, 179, 237, 0.25);
+    border-radius: var(--pico-border-radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.help-guide summary {
+    font-weight: bold;
+    cursor: pointer;
+    color: #63b3ed;
+}
+.help-guide ol {
+    margin: 0.75rem 0;
+    padding-left: 1.25rem;
+}
+.help-guide ol li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
 }

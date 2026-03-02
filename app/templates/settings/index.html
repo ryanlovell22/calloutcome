@@ -7,9 +7,47 @@
 <!-- 1. Call Source -->
 <article style="max-width: 600px;">
     <h3>Call Source</h3>
+    <p style="color: var(--pico-muted-color);">Connect Twilio or CallRail so CallVerdict can pull your call recordings.</p>
 
     <h4>Twilio</h4>
-    <form method="post">
+
+    {% if connected %}
+    <!-- Success state -->
+    <div class="connection-success">
+        <p class="connection-success-title">Twilio Connected</p>
+        <p>Your Twilio account is linked and call analysis is active. New calls are synced automatically every 5 minutes.</p>
+        <p style="margin-bottom: 0;"><strong>Webhook URL:</strong></p>
+        <code>{{ webhook_url }}</code>
+    </div>
+
+    <details style="margin-top: 1rem;">
+        <summary>Update credentials</summary>
+        <form method="post" style="margin-top: 1rem;">
+            <label for="twilio_account_sid">Account SID</label>
+            <input type="text" id="twilio_account_sid" name="twilio_account_sid"
+                   value="{{ account_sid }}" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" required>
+            <label for="twilio_auth_token">Auth Token</label>
+            <input type="password" id="twilio_auth_token" name="twilio_auth_token"
+                   value="{{ masked_token }}" placeholder="Enter your Auth Token" autocomplete="off">
+            <button type="submit">Save</button>
+        </form>
+    </details>
+
+    {% else %}
+    <!-- Setup state -->
+    <details class="help-guide" open>
+        <summary>Where do I find my Twilio credentials?</summary>
+        <ol>
+            <li>Log in to your <strong>Twilio Console</strong> (link below)</li>
+            <li>Your <strong>Account SID</strong> and <strong>Auth Token</strong> are displayed right on the main dashboard</li>
+            <li>Click "Show" next to the Auth Token to reveal it, then copy both values here</li>
+        </ol>
+        <a href="https://console.twilio.com/" target="_blank" rel="noopener" role="button" class="outline" style="width: auto; display: inline-block;">
+            Open Twilio Console &rarr;
+        </a>
+    </details>
+
+    <form method="post" style="margin-top: 1rem;">
         <label for="twilio_account_sid">Account SID</label>
         <input type="text" id="twilio_account_sid" name="twilio_account_sid"
                value="{{ account_sid }}" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" required>
@@ -18,34 +56,58 @@
         <input type="password" id="twilio_auth_token" name="twilio_auth_token"
                value="{{ masked_token }}" placeholder="Enter your Auth Token" autocomplete="off">
 
-        <button type="submit">Save</button>
+        <button type="submit">Connect Twilio</button>
     </form>
 
-    {% if connected or account_sid %}
-    <h5>Connection Status</h5>
-    {% if connected %}
-    <p><mark>Connected</mark></p>
-    <p><strong>Webhook URL:</strong></p>
-    <code>{{ webhook_url }}</code>
-    {% else %}
-    <p style="color: var(--pico-muted-color);">Not Connected</p>
+    {% if account_sid and not connected %}
+    <p style="color: var(--pico-muted-color); margin-top: 0.5rem;">Credentials saved but not yet connected. Check your SID and token are correct.</p>
     {% endif %}
     {% endif %}
 
     <hr>
 
     <h4>CallRail</h4>
-    <form method="post" action="{{ url_for('settings.save_callrail') }}">
+
+    {% if callrail_connected %}
+    <!-- Success state -->
+    <div class="connection-success">
+        <p class="connection-success-title">CallRail Connected</p>
+        <p>Account: <strong>{{ callrail_account_name }}</strong></p>
+        <p style="margin-bottom: 0.5rem;"><strong>Webhook URL</strong> (paste in CallRail &rarr; Settings &rarr; API &rarr; Webhooks):</p>
+        <code>{{ callrail_webhook_url }}</code>
+        <p style="margin-top: 0.75rem;"><small>Set this as a "Post-call" webhook in CallRail to receive call data automatically.</small></p>
+    </div>
+
+    <details style="margin-top: 1rem;">
+        <summary>Update API key</summary>
+        <form method="post" action="{{ url_for('settings.save_callrail') }}" style="margin-top: 1rem;">
+            <label for="callrail_api_key">API Key</label>
+            <input type="password" id="callrail_api_key" name="callrail_api_key"
+                   value="{{ masked_callrail_key }}" placeholder="Paste your CallRail API key" autocomplete="off">
+            <button type="submit">Update</button>
+        </form>
+    </details>
+
+    {% else %}
+    <!-- Setup state -->
+    <details class="help-guide" open>
+        <summary>Where do I find my CallRail API key?</summary>
+        <ol>
+            <li>Log in to <strong>CallRail</strong> (link below)</li>
+            <li>Go to <strong>Settings</strong> (gear icon, top right) &rarr; <strong>API</strong></li>
+            <li>Under <strong>API Keys</strong>, copy your existing key or create a new one</li>
+        </ol>
+        <a href="https://app.callrail.com/settings#api-keys" target="_blank" rel="noopener" role="button" class="outline" style="width: auto; display: inline-block;">
+            Open CallRail API Settings &rarr;
+        </a>
+    </details>
+
+    <form method="post" action="{{ url_for('settings.save_callrail') }}" style="margin-top: 1rem;">
         <label for="callrail_api_key">API Key</label>
         <input type="password" id="callrail_api_key" name="callrail_api_key"
                value="{{ masked_callrail_key }}" placeholder="Paste your CallRail API key" autocomplete="off">
-        <button type="submit">Connect</button>
+        <button type="submit">Connect CallRail</button>
     </form>
-    {% if callrail_connected %}
-    <p><mark>Connected</mark> — Account: {{ callrail_account_name }}</p>
-    <p><strong>Webhook URL (paste in CallRail → Settings → API → Webhooks):</strong></p>
-    <code>{{ callrail_webhook_url }}</code>
-    <p style="margin-top: 1rem;"><small>Set this as a "Post-call" webhook in CallRail to receive call data automatically.</small></p>
     {% endif %}
 </article>
 
