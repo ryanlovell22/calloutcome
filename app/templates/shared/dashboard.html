@@ -11,7 +11,7 @@
     <header class="container">
         <nav>
             <ul><li><strong>CallVerdict</strong></li></ul>
-            <ul><li><small>Proof Dashboard</small></li></ul>
+            <ul><li><small>Proof Dashboard — {{ window_label }}</small></li></ul>
         </nav>
     </header>
 
@@ -23,27 +23,18 @@
                 <small>Total Calls</small>
             </article>
             <article style="text-align: center;">
-                <h3 style="margin-bottom: 0;">{{ stats.booked }}</h3>
+                <h3 style="margin-bottom: 0; color: var(--pico-color-green-500, green);">{{ stats.booked }}</h3>
                 <small>Jobs Booked</small>
             </article>
             <article style="text-align: center;">
+                <h3 style="margin-bottom: 0; color: var(--pico-color-red-500, red);">{{ stats.not_booked }}</h3>
+                <small>Not Booked</small>
+            </article>
+            <article style="text-align: center;">
                 <h3 style="margin-bottom: 0;">{{ stats.rate }}%</h3>
-                <small>Booking Rate</small>
+                <small>Conversion Rate</small>
             </article>
         </div>
-
-        <!-- Date filter -->
-        <form method="get" style="display: flex; gap: 1rem; align-items: end; margin-bottom: 1rem;">
-            <label style="margin: 0;">
-                From
-                <input type="date" name="date_from" value="{{ date_from }}">
-            </label>
-            <label style="margin: 0;">
-                To
-                <input type="date" name="date_to" value="{{ date_to }}">
-            </label>
-            <button type="submit" class="outline" style="margin-bottom: 0;">Filter</button>
-        </form>
 
         <!-- Calls table -->
         {% if calls %}
@@ -52,18 +43,25 @@
                 <thead>
                     <tr>
                         <th>Date</th>
+                        {% if dashboard.tracking_lines | length > 1 %}
+                        <th>Line</th>
+                        {% endif %}
+                        <th>Customer</th>
                         <th>Duration</th>
                         <th>Classification</th>
+                        <th>Booking Time</th>
                         <th>Summary</th>
-                        {% if dashboard.show_transcripts %}
                         <th></th>
-                        {% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for call in calls %}
                     <tr>
                         <td>{{ call.call_date.strftime('%d %b %Y %H:%M') if call.call_date else '—' }}</td>
+                        {% if dashboard.tracking_lines | length > 1 %}
+                        <td>{{ call.tracking_line.label if call.tracking_line else '—' }}</td>
+                        {% endif %}
+                        <td>{{ call.customer_name or '—' }}</td>
                         <td>{{ '%d:%02d'|format(call.call_duration // 60, call.call_duration % 60) if call.call_duration else '—' }}</td>
                         <td>
                             {% if call.classification == 'JOB_BOOKED' %}
@@ -76,10 +74,9 @@
                             {{ call.status | capitalize }}
                             {% endif %}
                         </td>
-                        <td>{{ call.summary or '—' }}</td>
-                        {% if dashboard.show_transcripts %}
+                        <td>{{ call.booking_time or '—' }}</td>
+                        <td>{{ call.summary[:80] + '...' if call.summary and call.summary|length > 80 else call.summary or '—' }}</td>
                         <td><a href="/proof/{{ share_token }}/calls/{{ call.id }}">View</a></td>
-                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

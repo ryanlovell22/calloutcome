@@ -57,10 +57,16 @@
                     <p>{{ call.customer_name }}</p>
                 </div>
                 {% endif %}
-                {% if call.booking_date or call.booking_time %}
+                {% if call.booking_time %}
                 <div>
                     <strong>Booking Time:</strong>
-                    <p>{{ call.booking_date.strftime('%A, %-d %B %Y at %-I:%M %p') if call.booking_date else call.booking_time }}</p>
+                    <p>{{ call.booking_time }}</p>
+                </div>
+                {% endif %}
+                {% if call.customer_address %}
+                <div>
+                    <strong>Address:</strong>
+                    <p>{{ call.customer_address }}</p>
                 </div>
                 {% endif %}
             </div>
@@ -83,7 +89,10 @@
         {% if dashboard.show_recordings and call.recording_url %}
         <article>
             <h3>Recording</h3>
-            <p><em>Recording playback is not available on public links.</em></p>
+            <audio controls>
+                <source src="/proof/{{ share_token }}/calls/{{ call.id }}/recording" type="audio/mpeg">
+                Your browser does not support audio playback.
+            </audio>
         </article>
         {% endif %}
     </main>
