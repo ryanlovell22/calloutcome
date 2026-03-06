@@ -15,7 +15,7 @@ def send_email(to, subject, html):
     resend.api_key = api_key
     try:
         resend.Emails.send({
-            "from": "CallVerdict <noreply@callverdict.com>",
+            "from": "CallVerdict <onboarding@resend.dev>",
             "to": [to],
             "subject": subject,
             "html": html,
