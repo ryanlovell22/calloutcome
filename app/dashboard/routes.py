@@ -123,6 +123,8 @@ def index():
     else:
         week_label = "{} - {}".format(date_from, date_to)
 
+    importing = request.args.get("importing")
+
     filters = {
         "line": line_id,
         "partner": partner_id,
@@ -138,6 +140,7 @@ def index():
         partners=partners,
         week_label=week_label,
         pagination=pagination,
+        importing=importing,
         stats={
             "total": total,
             "booked": booked,

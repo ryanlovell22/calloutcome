@@ -5,6 +5,17 @@
 <h2>Dashboard</h2>
 <p style="color: var(--pico-muted-color); margin-top: -1rem;">{{ week_label }}</p>
 
+{% if importing and not calls %}
+<article style="background: var(--pico-primary-background); color: var(--pico-primary-inverse); padding: 1rem 1.5rem; margin-bottom: 1.5rem;">
+    <p style="margin: 0;"><strong>Importing your calls...</strong> This usually takes a minute or two. This page will refresh automatically.</p>
+</article>
+<script>setTimeout(function() { window.location.reload(); }, 10000);</script>
+{% elif importing and calls %}
+<article style="background: var(--pico-ins-color, #2a6e3f); color: white; padding: 1rem 1.5rem; margin-bottom: 1.5rem;">
+    <p style="margin: 0;"><strong>Import complete.</strong> Your calls are ready below. Some may still be processing — they'll update automatically.</p>
+</article>
+{% endif %}
+
 {% if current_user.user_type == 'account' and not current_user.is_admin %}
     {% if current_user.at_usage_limit %}
     <div class="usage-banner danger">

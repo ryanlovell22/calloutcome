@@ -174,4 +174,17 @@ def complete():
     account.onboarding_completed = True
     db.session.commit()
 
-    return jsonify({"success": True, "redirect": url_for("dashboard.index")})
+    redirect_url = url_for("dashboard.index")
+    if backsync_days:
+        from datetime import datetime, timedelta, timezone as tz
+        today = datetime.now(tz.utc).date()
+        date_from = (today - timedelta(days=days)).strftime("%Y-%m-%d")
+        date_to = today.strftime("%Y-%m-%d")
+        redirect_url = url_for(
+            "dashboard.index",
+            importing="1",
+            date_from=date_from,
+            date_to=date_to,
+        )
+
+    return jsonify({"success": True, "redirect": redirect_url})
