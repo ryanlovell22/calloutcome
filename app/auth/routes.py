@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from flask import render_template, redirect, url_for, flash, request
+from flask import current_app, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, current_user
 
 from ..models import db, Account
@@ -61,7 +61,8 @@ def signup():
             flash("An account with that email already exists.", "error")
             return render_template("auth/signup.html")
 
-        account = Account(name=name, email=email)
+        is_admin = email in current_app.config.get("ADMIN_EMAILS", [])
+        account = Account(name=name, email=email, is_admin=is_admin)
         account.set_password(password)
         db.session.add(account)
         db.session.commit()

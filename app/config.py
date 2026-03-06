@@ -34,5 +34,12 @@ class Config:
     STRIPE_PRICE_PRO = os.environ.get("STRIPE_PRICE_PRO")
     STRIPE_PRICE_AGENCY = os.environ.get("STRIPE_PRICE_AGENCY")
 
+    # Admin emails (auto-flagged as is_admin on signup)
+    ADMIN_EMAILS = [
+        e.strip().lower()
+        for e in os.environ.get("ADMIN_EMAILS", "lovell.ryan22@gmail.com").split(",")
+        if e.strip()
+    ]
+
     # Max upload size: 25MB
     MAX_CONTENT_LENGTH = 25 * 1024 * 1024
