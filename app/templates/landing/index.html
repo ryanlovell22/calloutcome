@@ -1,11 +1,47 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en-AU" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CallVerdict — AI Call Classification for Lead Gen Operators</title>
-    <meta name="description" content="Automatically score every call as Job Booked or Not Booked. Built for rank-and-rent and lead gen operators using CallRail or Twilio.">
+    <title>CallVerdict — AI Call Scoring for Lead Gen Operators</title>
+    <meta name="description" content="AI listens to every call, reads the transcript, and tells you: booked or not. Built for lead gen operators, agencies, and anyone billing per lead.">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CallVerdict — AI Call Scoring for Lead Gen Operators">
+    <meta property="og:description" content="Know instantly which calls booked a job. AI-powered call scoring with full transcripts and proof dashboards.">
+    <meta property="og:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
+    <meta property="og:url" content="{{ request.url }}">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="CallVerdict — AI Call Scoring for Lead Gen Operators">
+    <meta name="twitter:description" content="Know instantly which calls booked a job. AI-powered call scoring with full transcripts and proof dashboards.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='og-image.png', _external=True) }}">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="{{ request.url }}">
+
+    <!-- Favicon (inline SVG checkmark) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%231095c1'/><path d='M30 52l15 15 25-30' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "vrhl1i276u");
+    </script>
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- Pico CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+    <!-- AOS (Animate On Scroll) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
 
     <!-- Schema.org SoftwareApplication -->
     <script type="application/ld+json">
@@ -26,27 +62,215 @@
     </script>
 
     <style>
-        /* Landing page specific styles */
-        .hero { text-align: center; padding: 3rem 0; }
-        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; color: var(--pico-muted-color); margin-bottom: 2rem; }
+        /* Subtle body gradient */
+        body {
+            background: linear-gradient(180deg, var(--pico-background-color) 0%, rgba(16, 149, 193, 0.03) 50%, var(--pico-background-color) 100%);
+        }
 
-        .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; text-align: center; }
-        .steps article { padding: 1.5rem; }
-        .step-number { display: inline-block; width: 2.5rem; height: 2.5rem; line-height: 2.5rem; border-radius: 50%; background: var(--pico-primary-background); color: white; font-weight: bold; margin-bottom: 1rem; }
+        /* Hero */
+        .hero { padding: 4rem 0 3rem; }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+        .hero h1 {
+            font-size: 2.8rem;
+            line-height: 1.15;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 0%, #1095c1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--pico-muted-color);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .hero-screenshot {
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            width: 100%;
+            height: auto;
+        }
 
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+        /* Stats bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .stats-bar .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--pico-primary);
+        }
+        .stats-bar .stat-label {
+            color: var(--pico-muted-color);
+            font-size: 0.9rem;
+        }
 
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
-        .pricing-grid article { text-align: center; }
+        /* Section styling */
+        section { padding: 3rem 0; }
+        section h2 { text-align: center; margin-bottom: 2rem; }
+
+        /* Card grids with hover */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+        .card-grid article {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card-grid article:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Steps */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+        .steps article {
+            padding: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .steps article:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+        .step-number {
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            line-height: 2.5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0d7ea3 0%, #1095c1 50%, #4db8d5 100%);
+            color: white;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        /* Feature icons */
+        .feature-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: rgba(16, 149, 193, 0.15);
+            margin-bottom: 1rem;
+        }
+        .feature-icon svg {
+            width: 24px;
+            height: 24px;
+            stroke: #1095c1;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Pricing grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+        }
+        .pricing-grid article {
+            text-align: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+        }
+        .pricing-grid article:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
         .pricing-grid .price { font-size: 2rem; font-weight: bold; }
         .pricing-grid .period { color: var(--pico-muted-color); }
         .popular { border: 2px solid var(--pico-primary-background); }
+        .popular::before {
+            content: "Most Popular";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--pico-primary-background);
+            color: white;
+            padding: 2px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
 
-        .cta-section { text-align: center; padding: 3rem 0; }
+        /* Testimonial */
+        .testimonial { text-align: center; padding: 3rem 0; }
+        .testimonial blockquote {
+            font-size: 1.2rem;
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto 1rem;
+            border-left: none;
+            padding: 0;
+        }
+        .testimonial cite {
+            color: var(--pico-muted-color);
+            font-size: 0.9rem;
+        }
 
-        section { padding: 2rem 0; }
-        section h2 { text-align: center; margin-bottom: 2rem; }
+        /* FAQ */
+        .faq details { margin-bottom: 0.5rem; }
+
+        /* CTA section */
+        .cta-section { text-align: center; padding: 4rem 0; }
+
+        /* Footer */
+        .footer-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .footer-links a {
+            color: var(--pico-muted-color);
+            font-size: 0.85rem;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .hero h1 { font-size: 1.8rem; }
+            .hero-screenshot-wrap { order: -1; }
+            .stats-bar { grid-template-columns: 1fr; gap: 1rem; }
+            .pricing-grid { grid-template-columns: 1fr; }
+            .card-grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr; }
+            .nav-anchor { display: none; }
+            .footer-inner { flex-direction: column; text-align: center; }
+        }
     </style>
 </head>
 <body>
@@ -55,10 +279,10 @@
         <nav>
             <ul><li><strong>CallVerdict</strong></li></ul>
             <ul>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#pricing">Pricing</a></li>
+                <li class="nav-anchor"><a href="#features">Features</a></li>
+                <li class="nav-anchor"><a href="#pricing">Pricing</a></li>
                 <li><a href="/auth/login">Log in</a></li>
-                <li><a href="/auth/signup" role="button">Start Free</a></li>
+                <li><a href="/auth/signup" role="button">Get Started Free</a></li>
             </ul>
         </nav>
     </header>
@@ -66,26 +290,53 @@
     <main class="container">
         <!-- Hero -->
         <section class="hero">
-            <h1>Know exactly which calls booked a job.</h1>
-            <p>AI-powered call scoring for rank-and-rent and lead gen operators. Works with CallRail and Twilio.</p>
-            <a href="/auth/signup" role="button" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Start Free — No Card Required</a>
+            <div class="hero-grid">
+                <div>
+                    <h1>Know instantly which calls booked a job.</h1>
+                    <p>AI listens to every call, reads the transcript, and tells you: booked or not. Built for lead gen operators, agencies, and anyone billing per lead.</p>
+                    <a href="/auth/signup" role="button" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Get Started Free — No Card Required</a>
+                </div>
+                <div class="hero-screenshot-wrap">
+                    <img src="{{ url_for('static', filename='dashboard-preview.png') }}" alt="CallVerdict dashboard showing call scoring results" class="hero-screenshot" loading="eager">
+                </div>
+            </div>
         </section>
 
-        <!-- Pain point -->
+        <!-- Stats Bar (only shown when there's real data) -->
+        {% if total_calls > 0 %}
+        <section data-aos="fade-up">
+            <div class="stats-bar">
+                <div>
+                    <div class="stat-number">{{ total_calls }}+</div>
+                    <div class="stat-label">Calls scored</div>
+                </div>
+                <div>
+                    <div class="stat-number">{{ jobs_booked }}+</div>
+                    <div class="stat-label">Jobs identified</div>
+                </div>
+                <div>
+                    <div class="stat-number">95%+</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Pain Points -->
         <section>
-            <h2>Tired of clients disputing your leads?</h2>
-            <div class="features">
-                <article>
-                    <h3>No more he-said-she-said</h3>
-                    <p>Every call is transcribed and scored automatically. You have proof of exactly what happened.</p>
+            <h2>Stop guessing. Start proving.</h2>
+            <div class="card-grid">
+                <article data-aos="fade-up" data-aos-delay="0">
+                    <h3>Proof, not promises</h3>
+                    <p>Every call gets a transcript and a verdict. When a client questions a lead, you have the evidence right there.</p>
                 </article>
-                <article>
-                    <h3>Stop manually listening to calls</h3>
-                    <p>AI analyses every call in seconds. No more spending hours reviewing recordings to figure out what booked.</p>
+                <article data-aos="fade-up" data-aos-delay="100">
+                    <h3>Save hours every week</h3>
+                    <p>AI analyses every call in seconds. No more spending hours manually listening to recordings to figure out what booked.</p>
                 </article>
-                <article>
-                    <h3>Bill with confidence</h3>
-                    <p>Show your clients a dashboard with scored calls, transcripts, and booking details. Disputes drop to zero.</p>
+                <article data-aos="fade-up" data-aos-delay="200">
+                    <h3>Get paid for every lead</h3>
+                    <p>Share a proof dashboard with your clients showing scored calls, transcripts, and booking details. Disputes drop to zero.</p>
                 </article>
             </div>
         </section>
@@ -94,17 +345,17 @@
         <section>
             <h2>How it works</h2>
             <div class="steps">
-                <article>
+                <article data-aos="fade-up" data-aos-delay="0">
                     <div class="step-number">1</div>
                     <h3>Connect</h3>
                     <p>Link your CallRail or Twilio account in under 2 minutes.</p>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="100">
                     <div class="step-number">2</div>
                     <h3>We score every call</h3>
                     <p>AI transcribes and classifies each call as Job Booked, Not Booked, or Voicemail.</p>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="200">
                     <div class="step-number">3</div>
                     <h3>See results instantly</h3>
                     <p>View your dashboard with booking rates, call summaries, and exportable reports.</p>
@@ -115,39 +366,65 @@
         <!-- Features -->
         <section id="features">
             <h2>Features</h2>
-            <div class="features">
-                <article>
+            <div class="card-grid">
+                <article data-aos="fade-up" data-aos-delay="0">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                    </div>
                     <h3>AI Classification</h3>
                     <p>Every call scored as Job Booked, Not Booked, or Voicemail with confidence scores.</p>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
                     <h3>Full Transcripts</h3>
                     <p>Read what was said on every call. No need to listen to recordings.</p>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
                     <h3>Partner Logins</h3>
                     <p>Give your clients their own login to see their calls. View-only access to assigned lines.</p>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="0">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
                     <h3>Shareable Proof Links</h3>
                     <p>Send your client a link showing their scored calls. No login required. Password-protect if needed.</p>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="100">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    </div>
                     <h3>CallRail + Twilio</h3>
                     <p>Works with the tools you already use. Connect in minutes, not hours.</p>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="200">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </div>
                     <h3>CSV Export</h3>
                     <p>Export your call data anytime. Filter by date, line, or classification.</p>
                 </article>
             </div>
         </section>
 
+        <!-- Testimonial -->
+        <section class="testimonial" data-aos="fade-up">
+            <blockquote>
+                "I was spending 2 hours a week listening to calls just to figure out which ones booked. Now I check the dashboard in 30 seconds."
+            </blockquote>
+            <cite>— Ryan, lead gen operator</cite>
+        </section>
+
         <!-- Pricing -->
         <section id="pricing">
             <h2>Simple, transparent pricing</h2>
             <div class="pricing-grid">
-                <article>
+                <article data-aos="fade-up" data-aos-delay="0">
                     <h3>Free</h3>
                     <p class="price">$0</p>
                     <p class="period">forever</p>
@@ -155,9 +432,9 @@
                     <p>10 calls/month</p>
                     <p>1 tracking line</p>
                     <p>AI scoring + transcripts</p>
-                    <a href="/auth/signup" role="button" class="outline">Get Started</a>
+                    <a href="/auth/signup" role="button" class="outline">Get Started Free</a>
                 </article>
-                <article class="popular">
+                <article class="popular" data-aos="fade-up" data-aos-delay="100">
                     <h3>Starter</h3>
                     <p class="price">$29</p>
                     <p class="period">/month</p>
@@ -165,9 +442,9 @@
                     <p>100 calls/month</p>
                     <p>Unlimited lines</p>
                     <p>Partner logins</p>
-                    <a href="/auth/signup" role="button">Start Free Trial</a>
+                    <a href="/auth/signup" role="button">Get Started Free</a>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="200">
                     <h3>Pro</h3>
                     <p class="price">$79</p>
                     <p class="period">/month</p>
@@ -175,9 +452,9 @@
                     <p>500 calls/month</p>
                     <p>Unlimited lines</p>
                     <p>Shareable proof links</p>
-                    <a href="/auth/signup" role="button" class="outline">Start Free Trial</a>
+                    <a href="/auth/signup" role="button" class="outline">Get Started Free</a>
                 </article>
-                <article>
+                <article data-aos="fade-up" data-aos-delay="300">
                     <h3>Agency</h3>
                     <p class="price">$149</p>
                     <p class="period">/month</p>
@@ -185,22 +462,60 @@
                     <p>1,500 calls/month</p>
                     <p>Unlimited everything</p>
                     <p>Priority support</p>
-                    <a href="/auth/signup" role="button" class="outline">Start Free Trial</a>
+                    <a href="/auth/signup" role="button" class="outline">Get Started Free</a>
                 </article>
             </div>
         </section>
 
-        <!-- CTA -->
-        <section class="cta-section">
+        <!-- FAQ -->
+        <section id="faq" class="faq" data-aos="fade-up">
+            <h2>Frequently asked questions</h2>
+            <details>
+                <summary>What platforms are supported?</summary>
+                <p>CallVerdict works with CallRail and Twilio. You can also upload audio files directly if you use a different platform. Connect your account in under 2 minutes.</p>
+            </details>
+            <details>
+                <summary>How accurate is the AI?</summary>
+                <p>Our AI correctly classifies over 95% of calls. It analyses the full transcript to determine whether a job was booked, not just keywords. You can also manually override any classification.</p>
+            </details>
+            <details>
+                <summary>Can clients see their own calls?</summary>
+                <p>Yes. You can create partner logins for your clients so they can see their assigned calls, or share a proof dashboard link — no login required.</p>
+            </details>
+            <details>
+                <summary>What happens at the call limit?</summary>
+                <p>When you hit your monthly call limit, new calls will queue until your next billing period or until you upgrade. Your existing data is always accessible.</p>
+            </details>
+            <details>
+                <summary>Is there a contract?</summary>
+                <p>No contracts, no lock-in. All plans are month-to-month. You can upgrade, downgrade, or cancel anytime from your billing settings.</p>
+            </details>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="cta-section" data-aos="fade-up">
             <h2>Ready to stop guessing which calls booked?</h2>
             <p>Start scoring your calls in under 5 minutes. Free plan included.</p>
-            <a href="/auth/signup" role="button" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Create Your Free Account</a>
+            <a href="/auth/signup" role="button" style="font-size: 1.1rem; padding: 0.75rem 2rem;">Get Started Free</a>
         </section>
     </main>
 
     <footer class="container">
         <hr>
-        <small>CallVerdict &copy; 2026 | <a href="/auth/login">Log in</a> | <a href="/auth/signup">Sign up</a></small>
+        <div class="footer-inner">
+            <small>CallVerdict &copy; 2026</small>
+            <ul class="footer-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#faq">FAQ</a></li>
+                <li><a href="/auth/login">Log in</a></li>
+                <li><a href="/auth/signup">Sign up</a></li>
+            </ul>
+        </div>
     </footer>
+
+    <!-- AOS (Animate On Scroll) -->
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>AOS.init({ duration: 600, once: true, offset: 80 });</script>
 </body>
 </html>

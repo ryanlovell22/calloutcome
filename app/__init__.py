@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, render_template
 from flask_login import LoginManager
 from flask_migrate import Migrate
 
@@ -70,6 +70,18 @@ def create_app():
 
     from .shared import bp as shared_bp
     app.register_blueprint(shared_bp)
+
+    @app.route('/')
+    def index():
+        return redirect('/welcome')
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return render_template('errors/500.html'), 500
 
     @app.route('/health')
     def health_check():
