@@ -22,6 +22,7 @@ class Account(UserMixin, db.Model):
     callrail_api_key_encrypted = db.Column(db.Text)
     callrail_account_id = db.Column(db.String(50))
     call_source = db.Column(db.String(20), default="twilio")  # "twilio" or "callrail"
+    onboarding_completed = db.Column(db.Boolean, default=False, nullable=False)
 
     # Stripe billing
     stripe_customer_id = db.Column(db.String(255))
@@ -32,6 +33,10 @@ class Account(UserMixin, db.Model):
     plan_period_start = db.Column(db.DateTime)
     plan_period_end = db.Column(db.DateTime)
     subscription_status = db.Column(db.String(20), default="active")  # active/past_due/cancelled
+
+    # Password reset
+    password_reset_token = db.Column(db.String(64))
+    password_reset_expires = db.Column(db.DateTime)
 
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc)

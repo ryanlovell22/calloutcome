@@ -19,9 +19,13 @@ callverdict/
 │   ├── config.py            # Config from env vars
 │   ├── models.py            # SQLAlchemy models (Account, Partner, TrackingLine, Call, Invoice)
 │   ├── twilio_service.py    # Twilio API helpers
+│   ├── decorators.py        # Shared decorators (account_required)
+│   ├── phone_utils.py       # get_available_numbers() from Twilio/CallRail
+│   ├── sync_utils.py        # spawn_backfill(), spawn_callrail_backfill()
 │   ├── auth/routes.py       # Login, signup, logout (checks both Account + Partner)
 │   ├── dashboard/routes.py  # Main dashboard, call detail, filters, override
 │   ├── lines/routes.py      # CRUD for tracking lines (account-only)
+│   ├── onboarding/routes.py # Post-signup wizard (5-step, AJAX)
 │   ├── partners/routes.py   # CRUD for partner logins (account-only)
 │   ├── webhooks/routes.py   # Twilio CI webhook receiver
 │   ├── upload/routes.py     # Manual audio file upload (account-only)

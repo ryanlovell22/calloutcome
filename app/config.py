@@ -23,6 +23,9 @@ class Config:
 
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
+    # Resend (transactional email)
+    RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+
     # Stripe
     STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
     STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY")

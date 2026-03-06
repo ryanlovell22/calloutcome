@@ -1,62 +1,20 @@
 import logging
-import threading
-from functools import wraps
 
-from flask import render_template, request, redirect, url_for, flash, abort, current_app
+from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 
 from ..models import db
+from ..decorators import account_required
+from ..sync_utils import spawn_backfill, spawn_callrail_backfill
 from ..twilio_service import (
     validate_twilio_credentials,
     create_ci_service,
     create_ci_operator,
 )
 from ..callrail_service import validate_callrail_credentials, fetch_callrail_accounts
-from ..poll_service import run_full_sync
 from . import bp
 
 logger = logging.getLogger(__name__)
-
-
-def account_required(f):
-    """Block partner users from accessing these routes."""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if current_user.user_type != "account":
-            abort(403)
-        return f(*args, **kwargs)
-    return decorated
-
-
-def _spawn_backfill(account_id, days=7):
-    """Run a full Twilio sync in a background thread."""
-    from ..models import Account
-    app = current_app._get_current_object()
-
-    def _run():
-        with app.app_context():
-            account = db.session.get(Account, account_id)
-            if account:
-                run_full_sync(account, days=days)
-
-    thread = threading.Thread(target=_run, daemon=True)
-    thread.start()
-
-
-def _spawn_callrail_backfill(account_id, days=7):
-    """Run a CallRail backfill in a background thread."""
-    from ..models import Account
-    app = current_app._get_current_object()
-
-    def _run():
-        with app.app_context():
-            account = db.session.get(Account, account_id)
-            if account:
-                from ..poll_service import run_callrail_backfill
-                run_callrail_backfill(account, days=days)
-
-    thread = threading.Thread(target=_run, daemon=True)
-    thread.start()
 
 
 @bp.route("/", methods=["GET", "POST"])
@@ -259,7 +217,7 @@ def sync_calls():
     days = request.form.get("sync_days", 1, type=int)
     days = min(max(days, 1), 30)  # Clamp between 1 and 30
 
-    _spawn_backfill(account.id, days=days)
+    spawn_backfill(account.id, days=days)
 
     flash(
         f"Syncing your last {days} day{'s' if days != 1 else ''} of Twilio calls in the background. "
@@ -312,9 +270,9 @@ def backsync_submit():
     days = min(max(days, 1), 30)  # Clamp between 1 and 30
 
     if source == "twilio" and account.twilio_service_sid:
-        _spawn_backfill(account.id, days=days)
+        spawn_backfill(account.id, days=days)
     elif source == "callrail" and account.callrail_account_id:
-        _spawn_callrail_backfill(account.id, days=days)
+        spawn_callrail_backfill(account.id, days=days)
     else:
         flash("Source not connected.", "error")
         return redirect(url_for("settings.index"))

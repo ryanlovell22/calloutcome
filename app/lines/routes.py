@@ -1,96 +1,10 @@
-import logging
-
-from flask import render_template, request, redirect, url_for, flash, abort
+from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 
 from ..models import db, TrackingLine, Partner, Account
-from ..callrail_service import fetch_callrail_trackers
-from ..twilio_service import fetch_twilio_phone_numbers
+from ..decorators import account_required
+from ..phone_utils import get_available_numbers
 from . import bp
-
-logger = logging.getLogger(__name__)
-
-
-def account_required(f):
-    """Block partner users from accessing these routes."""
-    from functools import wraps
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if current_user.user_type != "account":
-            abort(403)
-        return f(*args, **kwargs)
-    return decorated
-
-
-def _get_available_numbers(account, exclude_line_id=None):
-    """Fetch phone numbers from connected sources and filter out already-assigned ones.
-
-    Args:
-        account: The Account object
-        exclude_line_id: If editing a line, keep its number in the list
-
-    Returns:
-        List of dicts with number, label, source, and optional callrail fields.
-    """
-    available = []
-
-    # Twilio numbers
-    twilio_connected = bool(
-        account.twilio_account_sid and account.twilio_auth_token_encrypted
-    )
-    if twilio_connected:
-        try:
-            twilio_numbers = fetch_twilio_phone_numbers(
-                account.twilio_account_sid,
-                account.twilio_auth_token_encrypted,
-            )
-            for num in twilio_numbers:
-                available.append({
-                    "number": num["phone_number"],
-                    "label": f"{num['phone_number']} — {num['friendly_name']} (Twilio)",
-                    "friendly_name": num["friendly_name"],
-                    "source": "twilio",
-                })
-        except Exception:
-            logger.exception("Failed to fetch Twilio phone numbers")
-
-    # CallRail numbers
-    callrail_connected = bool(
-        account.callrail_api_key_encrypted and account.callrail_account_id
-    )
-    if callrail_connected:
-        try:
-            trackers = fetch_callrail_trackers(
-                account.callrail_api_key_encrypted,
-                account.callrail_account_id,
-            )
-            for t in trackers:
-                available.append({
-                    "number": t["tracking_phone_number"],
-                    "label": f"{t['tracking_phone_number']} — {t['name'] or 'Unnamed'} (CallRail)",
-                    "friendly_name": t["name"] or "Unnamed",
-                    "source": "callrail",
-                    "callrail_tracker_id": str(t["id"]),
-                    "callrail_tracking_number": t["tracking_phone_number"],
-                })
-        except Exception:
-            logger.exception("Failed to fetch CallRail trackers")
-
-    # Filter out numbers already assigned to other tracking lines
-    existing_lines = TrackingLine.query.filter_by(account_id=account.id).all()
-    used_numbers = set()
-    for line in existing_lines:
-        if exclude_line_id and line.id == exclude_line_id:
-            continue
-        if line.twilio_phone_number:
-            used_numbers.add(line.twilio_phone_number)
-        if line.callrail_tracking_number:
-            used_numbers.add(line.callrail_tracking_number)
-
-    available = [n for n in available if n["number"] not in used_numbers]
-
-    return available
 
 
 @bp.route("/")
@@ -138,7 +52,7 @@ def add():
         flash("Tracking line added.", "success")
         return redirect(url_for("lines.index"))
 
-    available_numbers = _get_available_numbers(account) if account else []
+    available_numbers = get_available_numbers(account) if account else []
 
     return render_template(
         "lines/form.html",
@@ -174,7 +88,7 @@ def edit(line_id):
         flash("Tracking line updated.", "success")
         return redirect(url_for("lines.index"))
 
-    available_numbers = _get_available_numbers(account, exclude_line_id=line.id) if account else []
+    available_numbers = get_available_numbers(account, exclude_line_id=line.id) if account else []
 
     return render_template(
         "lines/form.html",

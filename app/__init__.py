@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 
 from .config import Config
 from .models import db, Account
+from .extensions import limiter
 
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
@@ -28,6 +29,7 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
+    limiter.init_app(app)
 
     import pytz
 
@@ -57,6 +59,7 @@ def create_app():
     from .settings import bp as settings_bp
     from .landing import bp as landing_bp
     from .billing import bp as billing_bp
+    from .onboarding import bp as onboarding_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
@@ -67,6 +70,7 @@ def create_app():
     app.register_blueprint(settings_bp)
     app.register_blueprint(landing_bp)
     app.register_blueprint(billing_bp)
+    app.register_blueprint(onboarding_bp)
 
     from .shared import bp as shared_bp
     app.register_blueprint(shared_bp)

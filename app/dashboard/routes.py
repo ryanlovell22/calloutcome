@@ -14,6 +14,9 @@ from . import bp
 @bp.route("/")
 @login_required
 def index():
+    if current_user.user_type == "account" and not current_user.onboarding_completed:
+        return redirect(url_for("onboarding.wizard"))
+
     from sqlalchemy import func
 
     # Filters
@@ -128,25 +131,6 @@ def index():
         "date_to": date_to or "",
     }
 
-    # Getting-started checklist (shown until ALL 3 steps are complete)
-    setup_done = None
-    setup_just_completed = False
-    if current_user.user_type == "account":
-        calls_connected = bool(
-            current_user.twilio_service_sid
-            or (current_user.callrail_api_key_encrypted and current_user.callrail_account_id)
-        )
-        has_partners = len(partners) > 0
-        has_lines = len(lines) > 0
-        if not (calls_connected and has_partners and has_lines):
-            setup_done = {
-                "calls_connected": calls_connected,
-                "has_partners": has_partners,
-                "has_lines": has_lines,
-            }
-        elif Call.query.filter_by(account_id=current_user.id).count() == 0:
-            setup_just_completed = True
-
     return render_template(
         "dashboard/index.html",
         calls=calls,
@@ -164,8 +148,6 @@ def index():
             "missed": missed,
         },
         filters=filters,
-        setup_done=setup_done,
-        setup_just_completed=setup_just_completed,
         active_page="dashboard",
     )
 

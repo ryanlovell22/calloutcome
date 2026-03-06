@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+{% block title %}Get Started — CallVerdict{% endblock %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 0 auto;">
+
+<h2>Get Started</h2>
+<progress id="wizard-progress" value="1" max="5" style="margin-bottom: 2rem;"></progress>
+
+<!-- Step 1: Choose Call Source -->
+<div class="wizard-step" id="step-1">
+    <h3>How do your calls come in?</h3>
+    <p style="color: var(--pico-muted-color);">Choose how CallVerdict will access your call recordings.</p>
+
+    <div class="source-cards">
+        <article class="source-card" onclick="selectSource('twilio')">
+            <h4>Twilio</h4>
+            <p style="font-size: 0.875rem; color: var(--pico-muted-color);">Connect your Twilio account to automatically pull call recordings.</p>
+        </article>
+        <article class="source-card" onclick="selectSource('callrail')">
+            <h4>CallRail</h4>
+            <p style="font-size: 0.875rem; color: var(--pico-muted-color);">Connect your CallRail account for automatic call tracking.</p>
+        </article>
+        <article class="source-card" onclick="selectSource('manual')">
+            <h4>Upload Manually</h4>
+            <p style="font-size: 0.875rem; color: var(--pico-muted-color);">Upload call recordings yourself from the dashboard.</p>
+        </article>
+    </div>
+</div>
+
+<!-- Step 2: Paste API Credentials -->
+<div class="wizard-step" id="step-2" style="display: none;">
+    <h3 id="step2-title">Connect Your Account</h3>
+
+    <!-- Twilio form -->
+    <div id="twilio-form" style="display: none;">
+        <details class="help-guide" open>
+            <summary>Where do I find my Twilio credentials?</summary>
+            <ol>
+                <li>Log in to your <strong>Twilio Console</strong></li>
+                <li>Your <strong>Account SID</strong> and <strong>Auth Token</strong> are on the main dashboard</li>
+                <li>Click "Show" next to the Auth Token to reveal it, then copy both values here</li>
+            </ol>
+            <a href="https://console.twilio.com/" target="_blank" rel="noopener" role="button" class="outline" style="width: auto; display: inline-block;">
+                Open Twilio Console &rarr;
+            </a>
+        </details>
+
+        <label for="twilio_sid">Account SID</label>
+        <input type="text" id="twilio_sid" placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+
+        <label for="twilio_token">Auth Token</label>
+        <input type="password" id="twilio_token" placeholder="Enter your Auth Token" autocomplete="off">
+
+        <div id="twilio-error" class="validation-error" style="display: none;"></div>
+        <div id="twilio-success" class="connection-success" style="display: none;">
+            <p class="connection-success-title">Twilio Connected</p>
+            <p>Your Twilio account is linked and ready to go.</p>
+        </div>
+
+        <button id="twilio-connect-btn" onclick="connectTwilio()">Connect Twilio</button>
+    </div>
+
+    <!-- CallRail form -->
+    <div id="callrail-form" style="display: none;">
+        <details class="help-guide" open>
+            <summary>Where do I find my CallRail API key?</summary>
+            <ol>
+                <li>Log in to <strong>CallRail</strong></li>
+                <li>Go to <strong>Settings</strong> (gear icon) &rarr; <strong>API</strong></li>
+                <li>Under <strong>API Keys</strong>, copy your existing key or create a new one</li>
+            </ol>
+            <a href="https://app.callrail.com/settings#api-keys" target="_blank" rel="noopener" role="button" class="outline" style="width: auto; display: inline-block;">
+                Open CallRail API Settings &rarr;
+            </a>
+        </details>
+
+        <label for="callrail_key">API Key</label>
+        <input type="password" id="callrail_key" placeholder="Paste your CallRail API key" autocomplete="off">
+
+        <div id="callrail-error" class="validation-error" style="display: none;"></div>
+        <div id="callrail-success" class="connection-success" style="display: none;">
+            <p class="connection-success-title">CallRail Connected</p>
+            <p id="callrail-account-name"></p>
+        </div>
+
+        <button id="callrail-connect-btn" onclick="connectCallRail()">Connect CallRail</button>
+    </div>
+
+    <button id="step2-next-btn" onclick="showStep(3)" style="display: none;">Next &rarr;</button>
+    <p><a href="javascript:void(0)" onclick="showStep(1)">&larr; Back</a></p>
+</div>
+
+<!-- Step 3: Select Phone Numbers -->
+<div class="wizard-step" id="step-3" style="display: none;">
+    <h3>Select Your Phone Numbers</h3>
+    <p style="color: var(--pico-muted-color);">Choose which numbers to monitor. These become your tracking lines.</p>
+
+    <div id="numbers-loading" style="text-align: center;">
+        <p aria-busy="true">Loading your phone numbers...</p>
+    </div>
+
+    <div id="numbers-list" style="display: none;">
+        <div style="margin-bottom: 1rem;">
+            <a href="javascript:void(0)" onclick="toggleAllNumbers(true)">Select All</a> |
+            <a href="javascript:void(0)" onclick="toggleAllNumbers(false)">Deselect All</a>
+        </div>
+        <div id="numbers-container" class="number-list"></div>
+        <div id="numbers-error" class="validation-error" style="display: none;"></div>
+        <button id="create-lines-btn" onclick="createLines()">Create Tracking Lines</button>
+    </div>
+
+    <div id="numbers-empty" style="display: none;">
+        <article>
+            <p>No phone numbers found on your account, or all numbers are already assigned.</p>
+        </article>
+    </div>
+
+    <div id="lines-created-success" class="connection-success" style="display: none;">
+        <p class="connection-success-title" id="lines-created-msg"></p>
+    </div>
+
+    <button id="step3-next-btn" onclick="showStep(4)" style="display: none;">Next &rarr;</button>
+    <p><a href="javascript:void(0)" onclick="showStep(2)">&larr; Back</a></p>
+</div>
+
+<!-- Step 4: Add Partners (Optional) -->
+<div class="wizard-step" id="step-4" style="display: none;">
+    <h3>Add Partners <small style="color: var(--pico-muted-color);">(Optional)</small></h3>
+    <p style="color: var(--pico-muted-color);">Do you send leads to partners or tradies? Add them here to track performance per partner.</p>
+
+    <div id="partner-form-section">
+        <label for="partner_name">Partner Name</label>
+        <input type="text" id="partner_name" placeholder="e.g. Smith Plumbing">
+
+        <label for="partner_cpl">Cost per Lead ($)</label>
+        <input type="number" id="partner_cpl" placeholder="0.00" step="0.01" min="0" value="">
+
+        <div id="partner-error" class="validation-error" style="display: none;"></div>
+        <button onclick="addPartner()" class="outline">Add Partner</button>
+    </div>
+
+    <div id="partners-added-list" style="margin-top: 1rem;"></div>
+
+    <div style="margin-top: 2rem;">
+        <button onclick="goToFinalStep()">Continue &rarr;</button>
+        <p><a href="javascript:void(0)" onclick="goToFinalStep()">Skip — I'll add partners later</a></p>
+    </div>
+</div>
+
+<!-- Step 5: Import Historical Calls (Backsync) -->
+<div class="wizard-step" id="step-5" style="display: none;">
+    <h3>Import Historical Calls</h3>
+    <p style="color: var(--pico-muted-color);">Want to pull in recent calls from your connected account? This uses your plan allowance.</p>
+
+    <article style="margin-bottom: 1.5rem;">
+        <p><strong>Plan:</strong> {{ account.stripe_plan or 'free' | capitalize }}</p>
+        <p><strong>Calls remaining:</strong> {{ (account.plan_calls_limit or 10) - (account.plan_calls_used or 0) }} of {{ account.plan_calls_limit or 10 }}</p>
+        <progress value="{{ account.plan_calls_used or 0 }}" max="{{ account.plan_calls_limit or 10 }}"></progress>
+    </article>
+
+    <label>How far back should we look?</label>
+    <fieldset>
+        <label><input type="radio" name="backsync_days" value="1"> Last 24 hours</label>
+        <label><input type="radio" name="backsync_days" value="7" checked> Last 7 days</label>
+        <label><input type="radio" name="backsync_days" value="14"> Last 14 days</label>
+        <label><input type="radio" name="backsync_days" value="30"> Last 30 days</label>
+    </fieldset>
+
+    <button onclick="completeOnboarding(true)">Import Calls &amp; Finish</button>
+    <p><a href="javascript:void(0)" onclick="completeOnboarding(false)">Skip — I'll wait for new calls</a></p>
+</div>
+
+</div>
+
+<script>
+let currentStep = 1;
+let selectedSource = null;
+let availableNumbers = [];
+
+function showStep(n) {
+    document.querySelectorAll('.wizard-step').forEach(el => el.style.display = 'none');
+    document.getElementById('step-' + n).style.display = 'block';
+    document.getElementById('wizard-progress').value = n;
+    currentStep = n;
+
+    if (n === 3) {
+        fetchNumbers();
+    }
+}
+
+function selectSource(source) {
+    selectedSource = source;
+    document.querySelectorAll('.source-card').forEach(el => el.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+
+    if (source === 'manual') {
+        showStep(4);
+    } else {
+        showStep(2);
+        document.getElementById('twilio-form').style.display = source === 'twilio' ? 'block' : 'none';
+        document.getElementById('callrail-form').style.display = source === 'callrail' ? 'block' : 'none';
+        document.getElementById('step2-title').textContent = source === 'twilio' ? 'Connect Twilio' : 'Connect CallRail';
+    }
+}
+
+async function connectTwilio() {
+    const btn = document.getElementById('twilio-connect-btn');
+    const errEl = document.getElementById('twilio-error');
+    const successEl = document.getElementById('twilio-success');
+    errEl.style.display = 'none';
+    successEl.style.display = 'none';
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+
+    try {
+        const resp = await fetch('/onboarding/validate-twilio', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                account_sid: document.getElementById('twilio_sid').value,
+                auth_token: document.getElementById('twilio_token').value,
+            }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+            errEl.textContent = data.error || 'Connection failed.';
+            errEl.style.display = 'block';
+        } else {
+            successEl.style.display = 'block';
+            btn.style.display = 'none';
+            document.getElementById('step2-next-btn').style.display = 'block';
+        }
+    } catch (e) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.style.display = 'block';
+    } finally {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+    }
+}
+
+async function connectCallRail() {
+    const btn = document.getElementById('callrail-connect-btn');
+    const errEl = document.getElementById('callrail-error');
+    const successEl = document.getElementById('callrail-success');
+    errEl.style.display = 'none';
+    successEl.style.display = 'none';
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+
+    try {
+        const resp = await fetch('/onboarding/validate-callrail', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                api_key: document.getElementById('callrail_key').value,
+            }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+            errEl.textContent = data.error || 'Connection failed.';
+            errEl.style.display = 'block';
+        } else {
+            document.getElementById('callrail-account-name').textContent = 'Account: ' + (data.account_name || 'Connected');
+            successEl.style.display = 'block';
+            btn.style.display = 'none';
+            document.getElementById('step2-next-btn').style.display = 'block';
+        }
+    } catch (e) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.style.display = 'block';
+    } finally {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+    }
+}
+
+async function fetchNumbers() {
+    const loadingEl = document.getElementById('numbers-loading');
+    const listEl = document.getElementById('numbers-list');
+    const emptyEl = document.getElementById('numbers-empty');
+    loadingEl.style.display = 'block';
+    listEl.style.display = 'none';
+    emptyEl.style.display = 'none';
+
+    try {
+        const resp = await fetch('/onboarding/fetch-numbers');
+        availableNumbers = await resp.json();
+
+        loadingEl.style.display = 'none';
+
+        if (availableNumbers.length === 0) {
+            emptyEl.style.display = 'block';
+            document.getElementById('step3-next-btn').style.display = 'block';
+        } else {
+            const container = document.getElementById('numbers-container');
+            container.innerHTML = '';
+            availableNumbers.forEach((num, i) => {
+                const label = document.createElement('label');
+                label.innerHTML = '<input type="checkbox" checked data-index="' + i + '"> ' +
+                    num.label;
+                container.appendChild(label);
+            });
+            listEl.style.display = 'block';
+        }
+    } catch (e) {
+        loadingEl.innerHTML = '<p class="validation-error">Failed to load numbers. Please try again.</p>';
+    }
+}
+
+function toggleAllNumbers(checked) {
+    document.querySelectorAll('#numbers-container input[type="checkbox"]').forEach(cb => {
+        cb.checked = checked;
+    });
+}
+
+async function createLines() {
+    const btn = document.getElementById('create-lines-btn');
+    const errEl = document.getElementById('numbers-error');
+    errEl.style.display = 'none';
+    btn.setAttribute('aria-busy', 'true');
+    btn.disabled = true;
+
+    const selected = [];
+    document.querySelectorAll('#numbers-container input[type="checkbox"]:checked').forEach(cb => {
+        const idx = parseInt(cb.dataset.index);
+        selected.push(availableNumbers[idx]);
+    });
+
+    if (selected.length === 0) {
+        errEl.textContent = 'Please select at least one number.';
+        errEl.style.display = 'block';
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+        return;
+    }
+
+    try {
+        const resp = await fetch('/onboarding/create-lines', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ numbers: selected }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+            errEl.textContent = data.error || 'Failed to create lines.';
+            errEl.style.display = 'block';
+        } else {
+            document.getElementById('lines-created-msg').textContent = data.lines_created + ' tracking line(s) created';
+            document.getElementById('lines-created-success').style.display = 'block';
+            document.getElementById('numbers-list').style.display = 'none';
+            document.getElementById('step3-next-btn').style.display = 'block';
+        }
+    } catch (e) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.style.display = 'block';
+    } finally {
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+    }
+}
+
+async function addPartner() {
+    const nameEl = document.getElementById('partner_name');
+    const cplEl = document.getElementById('partner_cpl');
+    const errEl = document.getElementById('partner-error');
+    errEl.style.display = 'none';
+
+    const name = nameEl.value.trim();
+    if (!name) {
+        errEl.textContent = 'Partner name is required.';
+        errEl.style.display = 'block';
+        return;
+    }
+
+    try {
+        const resp = await fetch('/onboarding/add-partner', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                name: name,
+                cost_per_lead: parseFloat(cplEl.value) || 0,
+            }),
+        });
+        const data = await resp.json();
+        if (!resp.ok) {
+            errEl.textContent = data.error || 'Failed to add partner.';
+            errEl.style.display = 'block';
+        } else {
+            const list = document.getElementById('partners-added-list');
+            const div = document.createElement('div');
+            div.className = 'partner-added';
+            div.innerHTML = '<span>' + data.name + '</span><span>$' + (parseFloat(cplEl.value) || 0).toFixed(2) + '/lead</span>';
+            list.appendChild(div);
+            nameEl.value = '';
+            cplEl.value = '';
+        }
+    } catch (e) {
+        errEl.textContent = 'Network error. Please try again.';
+        errEl.style.display = 'block';
+    }
+}
+
+function goToFinalStep() {
+    if (selectedSource === 'manual') {
+        completeOnboarding(false);
+    } else {
+        showStep(5);
+    }
+}
+
+async function completeOnboarding(withBacksync) {
+    const body = {};
+    if (withBacksync) {
+        const checked = document.querySelector('input[name="backsync_days"]:checked');
+        body.backsync_days = checked ? parseInt(checked.value) : 7;
+    }
+
+    try {
+        const resp = await fetch('/onboarding/complete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(body),
+        });
+        const data = await resp.json();
+        if (data.redirect) {
+            window.location.href = data.redirect;
+        }
+    } catch (e) {
+        alert('Something went wrong. Please try again.');
+    }
+}
+</script>
+{% endblock %}

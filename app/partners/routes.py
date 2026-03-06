@@ -1,20 +1,9 @@
-from flask import render_template, request, redirect, url_for, flash, abort
+from flask import render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 
 from ..models import db, Partner
+from ..decorators import account_required
 from . import bp
-
-
-def account_required(f):
-    """Block partner users from accessing these routes."""
-    from functools import wraps
-
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        if current_user.user_type != "account":
-            abort(403)
-        return f(*args, **kwargs)
-    return decorated
 
 
 @bp.route("/")
