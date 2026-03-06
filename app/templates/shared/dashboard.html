@@ -17,7 +17,7 @@
 
     <main class="container">
         <!-- Stats -->
-        <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stats-grid">
             <article class="stat-card stat-total">
                 <h3 data-count="{{ stats.total }}">{{ stats.total }}</h3>
                 <p>Total Calls</p>
@@ -30,9 +30,17 @@
                 <h3 data-count="{{ stats.not_booked }}" style="color: #ff6b6b;">{{ stats.not_booked }}</h3>
                 <p>Not Booked</p>
             </article>
+            <article class="stat-card stat-missed">
+                <h3 data-count="{{ stats.missed }}" style="color: #ffa94d;">{{ stats.missed }}</h3>
+                <p>Missed Calls</p>
+            </article>
             <article class="stat-card stat-conversion">
                 <h3 data-count="{{ stats.rate }}" data-suffix="%" style="color: #b197fc;">{{ stats.rate }}%</h3>
                 <p>Conversion Rate</p>
+            </article>
+            <article class="stat-card stat-value">
+                <h3 data-count="{{ stats.total_value }}" data-prefix="$" data-decimals="2" style="color: #63e6be;">${{ "%.2f"|format(stats.total_value) }}</h3>
+                <p>Lead Cost</p>
             </article>
         </div>
 

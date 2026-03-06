@@ -3,9 +3,10 @@ from datetime import datetime, timedelta, timezone
 
 import requests as http_requests
 from flask import render_template, request, redirect, url_for, session, abort, Response
+from sqlalchemy import func, or_
 from werkzeug.security import check_password_hash
 
-from ..models import db, Call, SharedDashboard, Account
+from ..models import db, Call, SharedDashboard, Account, Partner, TrackingLine
 from . import bp
 
 logger = logging.getLogger(__name__)
@@ -49,16 +50,44 @@ def public_dashboard(share_token):
     except ValueError:
         pass
 
-    # Only count completed, answered calls for stats
+    # Stats
+    total = query.count()
+    booked = query.filter(Call.classification == "JOB_BOOKED").count()
+    not_booked = query.filter(Call.classification == "NOT_BOOKED").count()
+    missed = query.filter(
+        or_(
+            Call.call_outcome.in_(["missed", "voicemail"]),
+            Call.classification == "VOICEMAIL",
+        )
+    ).count()
+    answered = booked + not_booked
+    rate = round(booked / answered * 100, 1) if answered > 0 else 0
+
+    # Lead value
+    booking_value = db.session.query(
+        func.coalesce(func.sum(Partner.cost_per_lead), 0)
+    ).join(TrackingLine, TrackingLine.partner_id == Partner.id
+    ).join(Call, Call.tracking_line_id == TrackingLine.id).filter(
+        Call.id.in_(query.filter(Call.classification == "JOB_BOOKED").with_entities(Call.id))
+    ).scalar()
+
+    call_value = db.session.query(
+        func.coalesce(func.sum(Partner.cost_per_call), 0)
+    ).join(TrackingLine, TrackingLine.partner_id == Partner.id
+    ).join(Call, Call.tracking_line_id == TrackingLine.id).filter(
+        Call.id.in_(query.filter(
+            Call.call_outcome == "answered",
+            Call.status == "completed",
+        ).with_entities(Call.id))
+    ).scalar()
+
+    total_value = float(booking_value + call_value)
+
+    # Show answered calls in table (exclude missed)
     answered_query = query.filter(
         Call.call_outcome != "missed",
         Call.status == "completed",
     )
-    booked = answered_query.filter(Call.classification == "JOB_BOOKED").count()
-    not_booked = answered_query.filter(Call.classification == "NOT_BOOKED").count()
-    total_answered = booked + not_booked
-    rate = round(booked / total_answered * 100, 1) if total_answered > 0 else 0
-
     calls = answered_query.order_by(Call.call_date.desc()).all()
 
     # Build a human-readable window label
@@ -79,7 +108,7 @@ def public_dashboard(share_token):
         "shared/dashboard.html",
         dashboard=dashboard,
         calls=calls,
-        stats={"total": total_answered, "booked": booked, "not_booked": not_booked, "rate": rate},
+        stats={"total": total, "booked": booked, "not_booked": not_booked, "missed": missed, "rate": rate, "total_value": total_value},
         window_label=window_label,
         share_token=share_token,
     )
