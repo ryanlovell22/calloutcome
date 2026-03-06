@@ -1,10 +1,11 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
-from flask import render_template, request, redirect, url_for, session, abort
+import requests as http_requests
+from flask import render_template, request, redirect, url_for, session, abort, Response
 from werkzeug.security import check_password_hash
 
-from ..models import db, Call, SharedDashboard
+from ..models import db, Call, SharedDashboard, Account
 from . import bp
 
 logger = logging.getLogger(__name__)
@@ -31,16 +32,11 @@ def public_dashboard(share_token):
     else:
         query = query.filter(False)
 
-    # Date filters
-    date_from = request.args.get("date_from")
-    date_to = request.args.get("date_to")
-
-    # Default to last 30 days
+    # Date window: use the configured rolling window, or default to 30 days
     today = datetime.now(timezone.utc).date()
-    if not date_from:
-        date_from = (today - timedelta(days=30)).strftime("%Y-%m-%d")
-    if not date_to:
-        date_to = today.strftime("%Y-%m-%d")
+    window_days = dashboard.date_window_days or 30
+    date_from = (today - timedelta(days=window_days)).strftime("%Y-%m-%d")
+    date_to = today.strftime("%Y-%m-%d")
 
     try:
         dt_from = datetime.strptime(date_from, "%Y-%m-%d")
@@ -53,21 +49,38 @@ def public_dashboard(share_token):
     except ValueError:
         pass
 
-    # Exclude missed calls from main stats
-    stats_query = query.filter(Call.call_outcome != "missed")
-    total = stats_query.count()
-    booked = stats_query.filter(Call.classification == "JOB_BOOKED").count()
-    rate = round(booked / total * 100, 1) if total > 0 else 0
+    # Only count completed, answered calls for stats
+    answered_query = query.filter(
+        Call.call_outcome != "missed",
+        Call.status == "completed",
+    )
+    booked = answered_query.filter(Call.classification == "JOB_BOOKED").count()
+    not_booked = answered_query.filter(Call.classification == "NOT_BOOKED").count()
+    total_answered = booked + not_booked
+    rate = round(booked / total_answered * 100, 1) if total_answered > 0 else 0
 
-    calls = stats_query.order_by(Call.call_date.desc()).all()
+    calls = answered_query.order_by(Call.call_date.desc()).all()
+
+    # Build a human-readable window label
+    if window_days <= 7:
+        window_label = "Last 7 days"
+    elif window_days <= 14:
+        window_label = "Last 14 days"
+    elif window_days <= 30:
+        window_label = "Last 30 days"
+    elif window_days <= 60:
+        window_label = "Last 60 days"
+    elif window_days <= 90:
+        window_label = "Last 90 days"
+    else:
+        window_label = f"Last {window_days} days"
 
     return render_template(
         "shared/dashboard.html",
         dashboard=dashboard,
         calls=calls,
-        stats={"total": total, "booked": booked, "rate": rate},
-        date_from=date_from,
-        date_to=date_to,
+        stats={"total": total_answered, "booked": booked, "not_booked": not_booked, "rate": rate},
+        window_label=window_label,
         share_token=share_token,
     )
 
@@ -117,4 +130,63 @@ def public_call_detail(share_token, call_id):
         dashboard=dashboard,
         call=call,
         share_token=share_token,
+    )
+
+
+@bp.route("/proof/<share_token>/calls/<int:call_id>/recording")
+def public_call_recording(share_token, call_id):
+    """Proxy recording audio for shared proof links."""
+    dashboard = SharedDashboard.query.filter_by(
+        share_token=share_token, active=True
+    ).first_or_404()
+
+    # Password check
+    if dashboard.password_hash:
+        if not session.get(f"proof_auth_{share_token}"):
+            abort(403)
+
+    if not dashboard.show_recordings:
+        abort(404)
+
+    call = Call.query.filter_by(
+        id=call_id, account_id=dashboard.account_id
+    ).first_or_404()
+
+    # Verify call belongs to dashboard scope
+    shared_line_ids = [l.id for l in dashboard.tracking_lines]
+    if call.tracking_line_id not in shared_line_ids:
+        abort(404)
+
+    if not call.recording_url:
+        return "Recording not available", 404
+
+    account = db.session.get(Account, dashboard.account_id)
+    if not account:
+        return "Recording not available", 404
+
+    # Twilio recordings need auth; CallRail CDN URLs are pre-signed
+    is_twilio = "twilio.com" in call.recording_url
+    if is_twilio:
+        resp = http_requests.get(
+            f"{call.recording_url}.mp3",
+            auth=(account.twilio_account_sid, account.twilio_auth_token_encrypted),
+            stream=True,
+            timeout=30,
+        )
+    else:
+        resp = http_requests.get(
+            call.recording_url,
+            stream=True,
+            timeout=30,
+        )
+
+    if resp.status_code != 200:
+        return "Recording not available", 404
+
+    content_type = resp.headers.get("Content-Type", "audio/mpeg")
+
+    return Response(
+        resp.iter_content(chunk_size=8192),
+        content_type=content_type,
+        headers={"Content-Disposition": "inline"},
     )

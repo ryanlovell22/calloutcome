@@ -35,6 +35,17 @@
         {% endfor %}
 
         <label>
+            Date Window
+            <select name="date_window_days">
+                <option value="7">Last 7 days</option>
+                <option value="14">Last 14 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="60">Last 60 days</option>
+                <option value="90">Last 90 days</option>
+            </select>
+        </label>
+
+        <label>
             Password (optional)
             <input type="text" name="password" placeholder="Leave blank for no password">
         </label>
@@ -53,6 +64,7 @@
         <thead>
             <tr>
                 <th>Scope</th>
+                <th>Window</th>
                 <th>Link</th>
                 <th>Password</th>
                 <th>Active</th>
@@ -64,6 +76,7 @@
             {% for d in dashboards %}
             <tr>
                 <td>{{ d.partner.name }} — {{ d.tracking_lines | length }} line{{ 's' if d.tracking_lines | length != 1 else '' }}</td>
+                <td>{{ d.date_window_days or 30 }} days</td>
                 <td style="white-space: nowrap;">
                     <input type="text" id="proof-url-{{ d.id }}"
                            value="{{ url_for('shared.public_dashboard', share_token=d.share_token, _external=True) }}"

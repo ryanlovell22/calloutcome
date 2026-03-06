@@ -474,6 +474,9 @@ def create_shared_link():
     password = request.form.get("password", "").strip()
     show_recordings = "show_recordings" in request.form
     show_transcripts = "show_transcripts" in request.form
+    date_window_days = request.form.get("date_window_days", 30, type=int)
+    if date_window_days not in (7, 14, 30, 60, 90):
+        date_window_days = 30
 
     # Get selected line IDs and validate they belong to this account + partner
     line_ids = request.form.getlist("line_ids", type=int)
@@ -497,6 +500,7 @@ def create_shared_link():
         password_hash=generate_password_hash(password) if password else None,
         show_recordings=show_recordings,
         show_transcripts=show_transcripts,
+        date_window_days=date_window_days,
     )
     dashboard.tracking_lines = valid_lines
     db.session.add(dashboard)

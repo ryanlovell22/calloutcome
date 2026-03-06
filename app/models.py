@@ -202,6 +202,7 @@ class SharedDashboard(db.Model):
     active = db.Column(db.Boolean, default=True)
     show_recordings = db.Column(db.Boolean, default=True)
     show_transcripts = db.Column(db.Boolean, default=True)
+    date_window_days = db.Column(db.Integer, nullable=True)  # rolling window; null = all time
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc)
     )
