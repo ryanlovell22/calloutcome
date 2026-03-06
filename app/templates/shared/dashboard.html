@@ -19,22 +19,18 @@
         <!-- Stats -->
         <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
             <article class="stat-card stat-total">
-                <span class="stat-icon">&#128222;</span>
                 <h3 data-count="{{ stats.total }}">{{ stats.total }}</h3>
                 <p>Total Calls</p>
             </article>
             <article class="stat-card stat-booked">
-                <span class="stat-icon">&#10003;</span>
                 <h3 data-count="{{ stats.booked }}" style="color: #51cf66;">{{ stats.booked }}</h3>
                 <p>Jobs Booked</p>
             </article>
             <article class="stat-card stat-not-booked">
-                <span class="stat-icon">&#10007;</span>
                 <h3 data-count="{{ stats.not_booked }}" style="color: #ff6b6b;">{{ stats.not_booked }}</h3>
                 <p>Not Booked</p>
             </article>
             <article class="stat-card stat-conversion">
-                <span class="stat-icon">&#9889;</span>
                 <h3 data-count="{{ stats.rate }}" data-suffix="%" style="color: #b197fc;">{{ stats.rate }}%</h3>
                 <p>Conversion Rate</p>
             </article>
