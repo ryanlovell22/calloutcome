@@ -17,31 +17,31 @@ logger = logging.getLogger(__name__)
 
 CLASSIFICATION_PROMPT = (
     "You are analysing a phone conversation between a customer calling "
-    "a trades business in Australia. Your job is to determine whether "
+    "a service business. Your job is to determine whether "
     "the customer booked a job during this call.\n\n"
     "IMPORTANT — Speaker roles:\n"
     "- The CUSTOMER is the person who initiated the call (the caller). "
     "They are seeking a service or repair.\n"
-    "- The TRADIE/BUSINESS is the person who answers the phone. They "
+    "- The TECHNICIAN/BUSINESS is the person who answers the phone. They "
     "are the service provider offering to do the work.\n"
-    "- Do NOT confuse the two. The tradie is NOT the customer. When "
+    "- Do NOT confuse the two. The technician is NOT the customer. When "
     "extracting 'customer_name', only use the caller's name, never "
-    "the business or tradie's name.\n"
-    "- In summaries, refer to 'the customer' (caller) and 'the tradie' "
+    "the business or technician's name.\n"
+    "- In summaries, refer to 'the customer' (caller) and 'the technician' "
     "or 'the business' (answerer) clearly.\n\n"
     "HOW TO IDENTIFY WHO IS WHO in the transcript:\n"
     "- The transcript has no speaker labels, so you must infer from context.\n"
-    "- The person who ANSWERS the phone is the tradie. They typically speak "
+    "- The person who ANSWERS the phone is the technician. They typically speak "
     "first with a greeting like 'Hello', '[Name] speaking', or the business "
     "name. If the transcript starts with a name (e.g. 'Greg speaking', "
-    "'Dan here'), that person is the TRADIE.\n"
+    "'Dan here'), that person is the TECHNICIAN.\n"
     "- The CUSTOMER is the one who called in. They typically explain their "
     "issue, ask about services, or request a repair.\n"
-    "- If both people give their name, the answerer's name is the tradie "
+    "- If both people give their name, the answerer's name is the technician "
     "and the caller's name is the customer.\n"
     "- If the only name mentioned belongs to the person who answers "
-    "(the tradie), then customer_name should be null — do NOT use "
-    "the tradie's name as the customer_name.\n\n"
+    "(the technician), then customer_name should be null — do NOT use "
+    "the technician's name as the customer_name.\n\n"
     "Classify the call as one of:\n\n"
     "JOB_BOOKED - The customer and business reached a clear mutual "
     "commitment to proceed. This includes ANY of the following:\n"
@@ -74,7 +74,7 @@ CLASSIFICATION_PROMPT = (
     "- The service type discussed (e.g. oven repair, dishwasher, "
     "washing machine, appliance repair)\n"
     "- Whether the customer mentioned urgency (same day, emergency)\n"
-    "- The customer's name (the CALLER's name, not the tradie's name) "
+    "- The customer's name (the CALLER's name, not the technician's name) "
     "if they mention it\n"
     "- The customer's address if they mention it\n"
     "- The booking time if a job was booked (e.g. 'tomorrow morning', "
@@ -196,11 +196,11 @@ def classify_transcript(transcript_text, business_name=None, call_date=None, tra
         user_content += (
             f'The business answering these calls is "{business_name}". '
             "If you see this name in the transcript, that person is the "
-            "TRADIE (the one answering), NOT the customer.\n\n"
+            "TECHNICIAN (the one answering), NOT the customer.\n\n"
         )
     if tradie_name:
         user_content += (
-            f'The tradie/person answering the phone is "{tradie_name}". '
+            f'The technician/person answering the phone is "{tradie_name}". '
             "This is NOT the customer. Do NOT use this name as the "
             "customer_name.\n\n"
         )
