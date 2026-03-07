@@ -153,8 +153,11 @@ def index():
     ).scalar()
 
     # Weekly minimum fees: for each partner with a weekly_minimum_fee,
-    # count the distinct weeks with calls in the filtered range and apply the fee
+    # count the distinct weeks with calls in the filtered range and apply the fee.
+    # Convert call_date to the user's local timezone before truncating to week,
+    # so that calls near midnight UTC are assigned to the correct local week.
     import math
+    tz_name = local_tz.zone  # e.g. 'Australia/Adelaide'
     weekly_min_value = Decimal(0)
     partners_with_min = Partner.query.filter(
         Partner.account_id == account_id,
@@ -164,8 +167,9 @@ def index():
         partner_calls = query.join(
             TrackingLine, Call.tracking_line_id == TrackingLine.id
         ).filter(TrackingLine.partner_id == p.id)
+        local_call_date = func.timezone(tz_name, func.timezone('UTC', Call.call_date))
         week_count = db.session.query(
-            func.count(func.distinct(func.date_trunc('week', Call.call_date)))
+            func.count(func.distinct(func.date_trunc('week', local_call_date)))
         ).filter(
             Call.id.in_(partner_calls.with_entities(Call.id))
         ).scalar() or 0
