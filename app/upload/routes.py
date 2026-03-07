@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from flask import render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_required, current_user
 
-from ..models import db, Call, TrackingLine
+from ..models import db, Account, Call, TrackingLine
 from ..ai_classifier import classify_transcript
 from . import bp
 
@@ -84,6 +84,11 @@ def _process_uploads(file_tasks, account_id, app):
                 if call.classification == "VOICEMAIL":
                     call.call_outcome = "voicemail"
 
+                # Increment plan usage
+                account = db.session.get(Account, account_id)
+                if account and account.plan_calls_used is not None:
+                    account.plan_calls_used += 1
+
                 db.session.commit()
 
             except Exception as e:
@@ -113,12 +118,23 @@ def index():
             )
             return redirect(url_for("settings.index"))
 
+        # Check plan limits
+        account = current_user
+        remaining = None
+        if not account.is_admin and account.plan_calls_limit is not None:
+            used = account.plan_calls_used or 0
+            remaining = max(0, account.plan_calls_limit - used)
+            if remaining == 0:
+                flash("You've reached your call limit. Upgrade your plan to process more calls.", "error")
+                return redirect(url_for("billing.index"))
+
         upload_dir = os.path.join(current_app.instance_path, "uploads")
         os.makedirs(upload_dir, exist_ok=True)
         line_id = request.form.get("tracking_line_id", type=int)
 
         file_tasks = []
         skipped = 0
+        limit_capped = 0
 
         for file in files:
             if not file or not file.filename:
@@ -126,6 +142,11 @@ def index():
 
             if not allowed_file(file.filename):
                 skipped += 1
+                continue
+
+            # Check if we've hit the plan limit
+            if remaining is not None and len(file_tasks) >= remaining:
+                limit_capped += 1
                 continue
 
             # Save file
@@ -153,6 +174,9 @@ def index():
             })
 
         if not file_tasks:
+            if limit_capped:
+                flash("You've reached your call limit. Upgrade your plan to process more calls.", "error")
+                return redirect(url_for("billing.index"))
             flash(
                 f"No valid files to process. Allowed formats: {', '.join(ALLOWED_EXTENSIONS)}",
                 "error",
@@ -172,6 +196,8 @@ def index():
         msg = f"{count} file{'s' if count != 1 else ''} uploaded — processing in background."
         if skipped:
             msg += f" {skipped} file{'s' if skipped != 1 else ''} skipped (unsupported format)."
+        if limit_capped:
+            msg += f" {limit_capped} file{'s' if limit_capped != 1 else ''} skipped (plan limit reached)."
         flash(msg, "success")
 
         return redirect(url_for("dashboard.index"))
