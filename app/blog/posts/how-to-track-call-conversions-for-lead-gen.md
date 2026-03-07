@@ -8,7 +8,7 @@ author: CallOutcome Team
 
 If you run lead generation websites, you already know that driving phone calls is only half the battle. The real question is: which of those calls actually turned into a booked job?
 
-Without proper call conversion tracking, you are flying blind. You cannot prove value to your clients, you cannot optimise your campaigns, and you cannot accurately bill for the leads you deliver. This guide walks you through exactly how to track call conversions for lead gen sites, from basic call tracking to AI-powered scoring.
+Without proper phone call conversion tracking, you are flying blind. You cannot prove value to your clients, you cannot optimise your campaigns, and you cannot accurately bill for the leads you deliver. Whether you are running a [pay per call operation](/blog/pay-per-call-lead-generation) or billing monthly retainers, this guide walks you through exactly how to track call conversions for lead gen sites, from basic call tracking to AI-powered scoring.
 
 ## Why Call Conversion Tracking Matters for Lead Gen
 
@@ -34,7 +34,7 @@ The foundation of any call conversion tracking setup is a call tracking platform
 
 ### What call tracking gives you
 
-A call tracking platform like CallRail or Twilio assigns unique phone numbers to each of your lead gen sites (or even individual pages). When someone calls that number, the platform logs:
+Call tracking software for lead generation like CallRail or Twilio assigns unique phone numbers to each of your lead gen sites (or even individual pages). When someone calls that number, the platform logs:
 
 - The caller's phone number
 - Call duration
@@ -77,7 +77,7 @@ The process is straightforward:
 3. AI reads the full transcript and classifies the call (Job Booked, Not Booked, Voicemail, etc.)
 4. Results appear on your dashboard within minutes
 
-The AI does not just look for keywords like "yes" or "book." It understands conversational context — whether a specific time was agreed on, whether the caller confirmed they want the service, whether the tradie committed to showing up. For a deeper look at the technology, see [how AI call scoring actually works](/blog/how-ai-call-scoring-works).
+AI call analysis does not just look for keywords like "yes" or "book." It understands conversational context — whether a specific time was agreed on, whether the caller confirmed they want the service, whether the tradie committed to showing up. For a deeper look at the technology, see [how AI call scoring actually works](/blog/how-ai-call-scoring-works).
 
 ### The accuracy question
 
@@ -85,7 +85,7 @@ Modern AI transcription and classification is remarkably accurate — well above
 
 [CallOutcome](/welcome) uses this approach, combining transcription with AI classification to score every call automatically. You get a dashboard showing exactly which calls booked and which did not, complete with full transcripts you can review if needed.
 
-## Setting Up Your Call Conversion Tracking Stack
+## Setting Up Your Call Tracking Software Stack
 
 Here is a practical setup that works for most lead gen operators:
 
@@ -152,5 +152,7 @@ When you know your true conversion rate, you can price leads more precisely. Bet
 The best time to set up call conversion tracking is before you launch your next lead gen site. The second best time is now.
 
 If you are already using CallRail or Twilio, you can connect [CallOutcome](/welcome) in under 5 minutes and start scoring calls immediately. The free plan includes 10 calls per month — enough to see how it works before committing.
+
+For a broader look at tracking platform options, see our [CallRail alternatives comparison](/blog/callrail-alternatives).
 
 Stop guessing which calls booked. Start proving it.

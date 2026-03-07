@@ -14,7 +14,7 @@ This article breaks down the technology behind AI call scoring in plain English.
 
 Before I built CallOutcome, I was reviewing calls the old-fashioned way. About 30 calls a week across 3 appliance repair lead gen sites in Toowoomba, plus a hot tub repair site in Spokane. At roughly 5 minutes per call (listening, noting the outcome, updating my records), I was burning 2.5 hours every week on something a machine should be doing.
 
-When I first set up AI scoring on my own calls, I expected to spend a lot of time correcting mistakes. I figured the AI would struggle with Australian accents, tradies talking over customers, and calls with background noise from job sites.
+When I first set up AI call monitoring on my own calls, I expected to spend a lot of time correcting mistakes. I figured the AI would struggle with Australian accents, tradies talking over customers, and calls with background noise from job sites.
 
 It handled all of that better than I expected. The vast majority of calls — well over 90% — got classified correctly without me touching anything. The ones it flagged as low confidence were genuinely ambiguous calls where even I would have had to think about it.
 
@@ -32,7 +32,7 @@ Here is how each one works.
 
 ## Step 1: Audio Capture
 
-Before AI can analyse a call, it needs a recording. This is handled by your existing call tracking platform — CallRail, Twilio, or whichever service you use.
+Before AI can analyse a call, it needs a recording. This is handled by your existing call tracking software — CallRail, Twilio, or whichever service you use.
 
 When a customer calls one of your tracking numbers, the platform records the conversation (both sides) and stores the audio file. Most platforms store recordings as standard audio files that can be accessed via their API.
 
@@ -66,7 +66,7 @@ This is the step that matters most to lead gen operators. The AI reads the compl
 
 ### What the AI is looking for
 
-The classification model analyses the transcript for signals that indicate a booking was made:
+This is where AI call analysis does the heavy lifting. The classification model analyses the transcript for signals that indicate a booking was made:
 
 **Positive signals (suggesting a job was booked):**
 
@@ -202,5 +202,7 @@ If you are currently listening to call recordings manually, the time savings alo
 If you are billing clients per lead and dealing with disputes, the proof system pays for itself the first time a client accepts an invoice without pushback. For a detailed walkthrough of how to set that up, see [how to prove lead quality to clients](/blog/how-to-prove-lead-quality-to-clients). And if you are comparing this against CallRail's built-in tools, see our [CallRail vs CallOutcome breakdown](/blog/callrail-vs-calloutcome).
 
 [CallOutcome's free plan](/welcome) scores 10 calls per month — enough to see the accuracy and value before scaling up. Connect your CallRail or Twilio account in under 5 minutes and let the AI do the work.
+
+If you are running [pay per call lead generation](/blog/pay-per-call-lead-generation) sites, AI scoring is what turns raw call volume into accurate billing. And if you are evaluating platforms, see our [CallRail alternatives comparison](/blog/callrail-alternatives) for an honest look at the options.
 
 Stop listening. Start scoring.

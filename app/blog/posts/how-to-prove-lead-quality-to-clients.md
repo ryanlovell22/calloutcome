@@ -6,7 +6,7 @@ date: 2026-03-07
 author: CallOutcome Team
 ---
 
-I send about 30 calls a week to two appliance repair tradies in Toowoomba. They pay $50 per booked job and $12.50 for missed calls. That pricing only works if both sides agree on which calls actually booked. Without proof, every invoice is a negotiation.
+I send about 30 calls a week to two appliance repair tradies in Toowoomba as part of my [pay per call](/blog/pay-per-call-lead-generation) operation. They pay $50 per booked job and $12.50 for missed calls. That pricing only works if both sides agree on which calls actually booked. Without proof, every invoice is a negotiation.
 
 I have not had a billing dispute yet — and that is not because my partners are unusually trusting. It is because they can see the data for themselves. Every call, every transcript, every classification. There is nothing to argue about when the proof is already sitting in front of them.
 
@@ -58,7 +58,7 @@ Transcripts are faster to review than recordings. Your client can scan through a
 
 **The problem:** Transcripts still require manual review. Someone has to read each one and decide: was this a real lead? Did a job get booked? That someone is usually you, the operator, which brings you back to the time problem.
 
-### Level 3: AI-scored calls with proof dashboard
+### Level 3: AI Call Scoring with Proof Dashboard
 
 This is the approach that actually scales. [AI reads the transcript](/blog/how-ai-call-scoring-works) of every call and classifies the outcome: Job Booked, Not Booked, Voicemail, or Spam. Your client sees a dashboard showing:
 
@@ -79,7 +79,7 @@ In Australia, best practice is to inform callers that the call is being recorded
 
 ### Step 2: Automate transcription and scoring
 
-Manually transcribing and reviewing calls does not scale. Use an AI-powered tool to handle this automatically.
+Manually transcribing and reviewing calls does not scale. Use an AI call analysis tool to handle this automatically.
 
 [CallOutcome](/welcome) connects to your CallRail or Twilio account, pulls every recording, transcribes it, and classifies the call outcome. The entire process happens automatically — you do not need to do anything after the initial setup.
 
@@ -181,5 +181,7 @@ If you are currently billing based on call duration and dealing with regular dis
 4. Share the proof dashboard with your client alongside your next invoice
 
 The free plan scores 10 calls per month — enough to see the difference it makes before scaling up.
+
+If you are comparing call tracking platforms, see our [CallRail alternatives guide](/blog/callrail-alternatives) for an honest comparison of the options.
 
 Your leads are real. Prove it.

@@ -8,13 +8,13 @@ author: CallOutcome Team
 
 Contractors live and die by their phone. Whether you are a plumber, electrician, locksmith, or appliance repair tech, most of your new business comes through inbound calls. But if you are not tracking those calls properly, you are leaving money on the table.
 
-Call tracking software tells you where your calls are coming from, how many you are getting, and — with the right tools — which ones are actually turning into jobs. This guide covers how to choose the right call tracking setup for your trade business.
+Phone call tracking software tells you where your calls are coming from, how many you are getting, and — with the right tools — which ones are actually turning into jobs. This guide covers how to choose the right call tracking setup for your trade business.
 
 ## Why Contractors Need Call Tracking
 
 ### Know which marketing channels work
 
-You might be spending money on Google Ads, SEO, a website, Google Business Profile, Facebook, and flyers all at the same time. Without call tracking, you have no idea which of those channels is driving the phone calls that actually bring in work.
+You might be spending money on Google Ads, SEO, a website, Google Business Profile, Facebook, and flyers all at the same time. Without inbound call tracking software, you have no idea which of those channels is driving the phone calls that actually bring in work.
 
 Call tracking assigns different phone numbers to different marketing channels. When a customer calls the number on your Google Ad, you know that call came from Google Ads. When someone calls the number on your website, you know they found you online.
 
@@ -42,7 +42,7 @@ Twilio's pay-as-you-go model becomes cheaper at scale. Phone numbers cost about 
 
 Ask them what platform they use. A good lead gen partner handles all the call tracking infrastructure for you — they own the tracking numbers, record the calls, and report the results. Your job is to answer the phone and book the work. If they use [CallOutcome](/welcome) for scoring, they can share a proof dashboard with you directly so you can see every call and its outcome.
 
-## Top Call Tracking Platforms for Contractors
+## Best Call Tracking Software for Contractors
 
 ### CallRail
 
@@ -185,5 +185,7 @@ Some contractors skip call recording because they are worried about privacy. In 
 If you are a contractor who is not yet tracking calls, start with the basics: one tracking number on your website, call recording enabled, and a weekly check of your dashboard.
 
 If you are already tracking calls and want to know which ones actually booked, try [CallOutcome's free plan](/welcome) — it scores 10 calls per month at no cost and connects to CallRail or Twilio in minutes.
+
+For a broader comparison of call tracking platforms beyond these three, see our [CallRail alternatives guide](/blog/callrail-alternatives). And if your lead gen partner runs a [pay per call](/blog/pay-per-call-lead-generation) model, understanding how call tracking fits into their operation helps you evaluate what you are paying for.
 
 The contractors who grow fastest are the ones who know their numbers. Call tracking gives you those numbers.
