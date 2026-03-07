@@ -75,7 +75,7 @@ def public_dashboard(share_token):
     answered = booked + not_booked
     rate = round(booked / answered * 100, 1) if answered > 0 else 0
 
-    # Lead value
+    # Lead value: per-booking + per-call + per-voicemail + per-qualified-call + weekly minimums
     booking_value = db.session.query(
         func.coalesce(func.sum(Partner.cost_per_lead), 0)
     ).join(TrackingLine, TrackingLine.partner_id == Partner.id
@@ -93,7 +93,44 @@ def public_dashboard(share_token):
         ).with_entities(Call.id))
     ).scalar()
 
-    total_value = float(booking_value + call_value)
+    voicemail_value = db.session.query(
+        func.coalesce(func.sum(Partner.cost_per_voicemail), 0)
+    ).join(TrackingLine, TrackingLine.partner_id == Partner.id
+    ).join(Call, Call.tracking_line_id == TrackingLine.id).filter(
+        Call.id.in_(query.filter(Call.classification == "VOICEMAIL").with_entities(Call.id))
+    ).scalar()
+
+    qualified_value = db.session.query(
+        func.coalesce(func.sum(Partner.cost_per_qualified_call), 0)
+    ).join(TrackingLine, TrackingLine.partner_id == Partner.id
+    ).join(Call, Call.tracking_line_id == TrackingLine.id).filter(
+        Call.id.in_(query.filter(
+            Call.call_outcome == "answered",
+            Call.status == "completed",
+        ).with_entities(Call.id)),
+        Call.call_duration >= Partner.qualified_call_seconds,
+    ).scalar()
+
+    # Weekly minimum fees
+    from decimal import Decimal
+    weekly_min_value = Decimal(0)
+    partners_with_min = Partner.query.filter(
+        Partner.account_id == dashboard.account_id,
+        Partner.weekly_minimum_fee > 0,
+    ).all()
+    for p in partners_with_min:
+        partner_calls = query.join(
+            TrackingLine, Call.tracking_line_id == TrackingLine.id
+        ).filter(TrackingLine.partner_id == p.id)
+        week_count = db.session.query(
+            func.count(func.distinct(func.date_trunc('week', Call.call_date)))
+        ).filter(
+            Call.id.in_(partner_calls.with_entities(Call.id))
+        ).scalar() or 0
+        if week_count > 0:
+            weekly_min_value += p.weekly_minimum_fee * week_count
+
+    total_value = float(booking_value + call_value + voicemail_value + qualified_value + weekly_min_value)
 
     # Show answered calls in table (exclude missed)
     answered_query = query.filter(

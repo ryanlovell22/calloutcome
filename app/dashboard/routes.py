@@ -116,7 +116,7 @@ def index():
     answered = booked + not_booked
     rate = round(booked / answered * 100, 1) if answered > 0 else 0
 
-    # Lead value: per-booking + per-call + per-voicemail + per-qualified-call
+    # Lead value: per-booking + per-call + per-voicemail + per-qualified-call + weekly minimums
     booking_value = db.session.query(
         func.coalesce(func.sum(Partner.cost_per_lead), 0)
     ).join(TrackingLine, TrackingLine.partner_id == Partner.id
@@ -152,7 +152,27 @@ def index():
         Call.call_duration >= Partner.qualified_call_seconds,
     ).scalar()
 
-    total_value = booking_value + call_value + voicemail_value + qualified_value
+    # Weekly minimum fees: for each partner with a weekly_minimum_fee,
+    # count the distinct weeks with calls in the filtered range and apply the fee
+    import math
+    weekly_min_value = Decimal(0)
+    partners_with_min = Partner.query.filter(
+        Partner.account_id == account_id,
+        Partner.weekly_minimum_fee > 0,
+    ).all()
+    for p in partners_with_min:
+        partner_calls = query.join(
+            TrackingLine, Call.tracking_line_id == TrackingLine.id
+        ).filter(TrackingLine.partner_id == p.id)
+        week_count = db.session.query(
+            func.count(func.distinct(func.date_trunc('week', Call.call_date)))
+        ).filter(
+            Call.id.in_(partner_calls.with_entities(Call.id))
+        ).scalar() or 0
+        if week_count > 0:
+            weekly_min_value += p.weekly_minimum_fee * week_count
+
+    total_value = booking_value + call_value + voicemail_value + qualified_value + weekly_min_value
 
     # Paginate the table query (all calls including missed)
     pagination = query.order_by(Call.call_date.desc()).paginate(page=page, per_page=50, error_out=False)
@@ -208,6 +228,11 @@ def index():
             "rate": rate,
             "total_value": total_value,
             "missed": missed,
+            "booking_value": float(booking_value),
+            "call_value": float(call_value),
+            "voicemail_value": float(voicemail_value),
+            "qualified_value": float(qualified_value),
+            "weekly_min_value": float(weekly_min_value),
         },
         filters=filters,
         active_page="dashboard",

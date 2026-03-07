@@ -66,9 +66,18 @@
                 <span class="chip-val" data-count="{{ stats.rate }}" data-suffix="%" style="color: #b197fc;">{{ stats.rate }}%</span>
                 <span class="chip-lbl">Conversion</span>
             </div>
-            <div class="stat-chip chip-full chip-highlight" style="border-left-color: #63e6be;">
+            <div class="stat-chip chip-full chip-highlight" style="border-left-color: #63e6be; position: relative;">
                 <span class="chip-val" data-count="{{ stats.total_value }}" data-prefix="$" data-decimals="2" style="color: #63e6be;">${{ "%.2f"|format(stats.total_value) }}</span>
                 <span class="chip-lbl">{% if current_user.user_type == 'partner' %}Lead Cost{% else %}Lead Value{% endif %}</span>
+                {% if stats.total_value > 0 %}
+                <div class="value-breakdown">
+                    {% if stats.booking_value %}<div class="breakdown-row"><span>Bookings</span><span>${{ "%.2f"|format(stats.booking_value) }}</span></div>{% endif %}
+                    {% if stats.call_value %}<div class="breakdown-row"><span>Answered calls</span><span>${{ "%.2f"|format(stats.call_value) }}</span></div>{% endif %}
+                    {% if stats.voicemail_value %}<div class="breakdown-row"><span>Voicemails</span><span>${{ "%.2f"|format(stats.voicemail_value) }}</span></div>{% endif %}
+                    {% if stats.qualified_value %}<div class="breakdown-row"><span>Qualified calls</span><span>${{ "%.2f"|format(stats.qualified_value) }}</span></div>{% endif %}
+                    {% if stats.weekly_min_value %}<div class="breakdown-row"><span>Weekly minimums</span><span>${{ "%.2f"|format(stats.weekly_min_value) }}</span></div>{% endif %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -66,6 +66,34 @@
 .chip-highlight .chip-val {
     font-size: 1.8rem;
 }
+
+/* Value breakdown tooltip on hover */
+.value-breakdown {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--pico-card-background-color, #1a1a2e);
+    border: 1px solid rgba(99, 230, 190, 0.25);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.chip-highlight:hover .value-breakdown {
+    display: block;
+}
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    padding: 0.2rem 0;
+    color: var(--pico-color);
+}
+.breakdown-row + .breakdown-row {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
 .chip-val {
     font-size: 1.5rem;
     font-weight: 700;
