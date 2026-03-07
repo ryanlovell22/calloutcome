@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 import logging
 import threading
@@ -31,9 +32,13 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+BATCH_SIZE = 10
+
+
 def _process_uploads(file_tasks, account_id, app):
     """Background thread: transcribe + classify each uploaded file via OpenAI.
 
+    Processes in batches of BATCH_SIZE with a brief pause between batches.
     file_tasks is a list of dicts: {"call_id": int, "temp_path": str, "temp_filename": str}
     """
     with app.app_context():
@@ -41,7 +46,10 @@ def _process_uploads(file_tasks, account_id, app):
         api_key = app.config.get("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY")
         client = OpenAI(api_key=api_key)
 
-        for task in file_tasks:
+        for i, task in enumerate(file_tasks):
+            if i > 0 and i % BATCH_SIZE == 0:
+                logger.info("Batch pause: processed %d/%d uploads", i, len(file_tasks))
+                time.sleep(2)
             call = db.session.get(Call, task["call_id"])
             if not call:
                 continue

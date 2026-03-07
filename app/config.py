@@ -41,5 +41,5 @@ class Config:
         if e.strip()
     ]
 
-    # Max upload size: 25MB
-    MAX_CONTENT_LENGTH = 25 * 1024 * 1024
+    # Max upload size: 200MB (supports ~100 call recordings)
+    MAX_CONTENT_LENGTH = 200 * 1024 * 1024
