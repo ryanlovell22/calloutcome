@@ -1,139 +1,68 @@
 ---
-title: "Case Study: How I Use AI Call Scoring Across 2 Rank-and-Rent Operations"
+title: "How I Stopped Manually Listening to 200+ Calls a Month Across My R&R Sites"
 slug: case-study-rank-and-rent-call-scoring
-description: "Real numbers from a hot tub repair site in Spokane and appliance repair sites in Toowoomba. How CallOutcome replaced manual call listening with AI-powered call scoring."
+description: "I run a hot tub repair site in Spokane and appliance repair sites in Australia. Here's how I automated call scoring and what the real numbers look like."
 date: 2026-03-08
 author: CallOutcome Team
 ---
 
-I run rank-and-rent lead gen sites across two markets: a hot tub repair site in Spokane, Washington, and a cluster of appliance repair sites in Toowoomba, Australia. Both operations send inbound calls to local trade partners who pay per lead.
+I've got two rank-and-rent operations running right now — a hot tub repair site in Spokane, WA and a few appliance repair sites in Toowoomba, Australia. Between them I'm pushing 200+ calls a month to trade partners.
 
-The problem was always the same: **how do you prove which calls actually booked a job?**
+The whole business model falls apart if you can't answer one question: **did that call actually book a job?**
 
-This is how I solved it with AI call scoring — and the real numbers behind both operations.
+I spent way too long trying to answer that manually. Here's what I ended up doing instead.
 
-## The Spokane Operation: Hot Tub Repair
+## Spokane: Hot Tub Repair
 
-### Background
+I bought this site about 6 months ago. It'd been ranking for 2 years already — I basically acquired it as a cash-flowing asset. The site pushes calls to one partner, a local hot tub repair guy, across 4 tracking numbers covering Spokane, Spokane Valley, Coeur d'Alene, and Sandpoint.
 
-I acquired a rank-and-rent hot tub repair site targeting the Spokane metro area about 6 months ago. The site had been running for 2 years and was already generating steady call volume when I bought it.
+He pays $350/week flat for exclusive leads. Good deal for both of us, but he wanted something I wasn't expecting — **regular reports on call stats**. How many came in, how many booked, which areas were producing, how many he was missing.
 
-**The setup:**
+Fair enough. But at ~100 calls a month, producing those reports meant sitting down and listening to recordings. I tried it for a couple months. It sucked. We're talking 8-10 hours a month of just... listening to phone calls. I do this as a side gig. I don't have that kind of time.
 
-- 4 tracking lines covering Spokane, Spokane Valley, Coeur d'Alene, and Sandpoint
-- 1 trade partner (a local hot tub repair company)
-- ~100 inbound calls per month
-- Partner pays a flat $350/week for exclusive leads
+I also tried the lazy shortcut — [treating call duration as a proxy for bookings](/blog/how-to-track-call-conversions-for-lead-gen). Anything over 2 minutes = probably booked. Turns out that's garbage. I had 4-minute calls where someone price-shopped and hung up, and 40-second calls where the customer said "Can you come Saturday?" and the tech said "Yep, 9am" — that's a booking in under a minute.
 
-### The problem
+### What I did
 
-My partner specifically requested regular updates on call statistics. He wanted to know:
+I connected my tracking numbers to CallOutcome. It pulls the recordings, transcribes them, and the AI reads the transcript to figure out if a job was booked, not booked, or missed. Every call gets a full transcript so I can spot-check anything that looks off.
 
-- How many calls came in each week
-- How many of those calls actually booked a job
-- Which locations were generating the most leads
-- Whether missed calls were costing him opportunities
+The big win honestly wasn't even the scoring itself — it was the [shared dashboard](/blog/how-to-prove-lead-quality-to-clients). My partner can just log in and see everything. Every call, every transcript, every classification. No more me cobbling together a spreadsheet on Sunday night. He checks it when he wants to and we haven't had a single billing argument since.
 
-Before CallOutcome, producing these reports meant **manually listening to call recordings**. At 100 calls per month, that is roughly 8-10 hours of listening time every month — time I did not have as someone running this as a side business.
+**The numbers:**
 
-I tried using [call duration as a proxy](/blog/how-to-track-call-conversions-for-lead-gen) ("calls over 2 minutes are probably booked"), but that was wildly inaccurate. A 4-minute call where the customer asks questions and then says "I'll think about it" is not a booked job. A 40-second call where someone says "Can you come Saturday?" and the tech says "Yep, 9am works" is a booking.
+- Went from ~8-10 hrs/month reviewing calls to maybe 20 minutes (just spot-checking edge cases)
+- My partner stopped questioning call volume — the data's right there
+- Cost: about $3-4/month in AI processing for ~100 calls. Compared to 8-10 hours of my time. Yeah.
 
-### The solution
+## Toowoomba: Appliance Repair
 
-I connected my Spokane tracking numbers to CallOutcome. The AI analyses every call recording and classifies it as:
+Different setup here. I've got 3 sites — oven repair, dishwasher repair, and general appliance repair — with 4 tracking lines and 2 trade partners splitting the work. These are newer sites, only been scoring calls for about a week.
 
-- **Job Booked** — the customer and tech agreed on a date/time
-- **Not Booked** — inquiry only, price shopping, or declined
-- **Missed** — no answer, voicemail, or hangup
+The key difference is the billing model. Instead of a flat weekly rate, my partners pay **$50 per booked job and $12.50 per missed call**.
 
-Each call gets a full transcript, so I can verify any classification with a quick scan instead of listening to the whole recording.
+This changes everything. With Spokane, if I miscategorise a call, it doesn't affect what my partner pays — it just makes my reports slightly wrong. With Toowoomba, every wrong classification costs someone real money. If I call something "booked" when it wasn't, I'm overcharging $50. If I miss a real booking, I'm leaving $50 on the table. Multiply that by 100+ calls a week and you can see why guessing doesn't cut it.
 
-### Results
+### How it actually works
 
-| Metric | Before CallOutcome | After CallOutcome |
-|--------|-------------------|-------------------|
-| Time spent on call review | ~8-10 hrs/month | ~20 min/month |
-| Reporting to partner | Manual spreadsheet, delayed | Shared dashboard, real-time |
-| Accuracy of "booked" tracking | ~60% (duration guessing) | ~95% (AI + transcript) |
-| Billing disputes | Occasional | None since launch |
+The AI isn't doing keyword matching or some basic "was the call longer than 2 minutes" check. It's [reading the transcript and understanding what happened](/blog/how-ai-call-scoring-works). Customer says "I need my oven fixed", tech says "I can come Thursday at 2pm", customer says "perfect" — that's a booked job. Customer asks about pricing and says "let me talk to my wife" — not booked. It gets the nuance.
 
-The [shared proof dashboard](/blog/how-to-prove-lead-quality-to-clients) was the game-changer for the partner relationship. Instead of me sending a spreadsheet every week, my partner can log in anytime and see exactly which calls came in, which ones booked, and read the transcript if he wants to verify. That transparency eliminated billing disputes entirely.
+After the first week: 100+ calls processed, and I only felt the need to manually check 3 of them. Those 3 were genuine edge cases — stuff like the customer saying "yeah sounds good, I'll call back to confirm the time." The AI flagged those as not booked (no firm appointment), which is the right call.
 
-**Cost of call scoring:** At ~100 calls per month, my CallOutcome cost is roughly $3-4/month in AI processing. Compare that to 8-10 hours of my time.
+## Stuff I didn't expect
 
-## The Toowoomba Operation: Appliance Repair
+**Missed call data is weirdly powerful.** I started tracking missed calls mostly as an afterthought, but it turned into one of the most useful things. When I can show a partner they missed 8 calls last Tuesday, the conversation shifts from "your leads are bad" to "you need to answer your phone." That's a completely different dynamic.
 
-### Background
+**It works for both billing models.** Flat rate (Spokane) — scoring builds trust and keeps the partner happy. Per-lead (Toowoomba) — scoring directly protects my revenue. Either way, you need to know which calls booked.
 
-I run 3 appliance repair lead gen sites in Toowoomba, Queensland, covering oven repair, dishwasher repair, and general appliance repair. These are newer sites with a different billing model.
+**Manual review just doesn't scale.** If you've got one site doing 10 calls a week, sure, listen to everything. Once you're running multiple sites across multiple markets? Forget it. I'm at 200+ calls a month now. There's no version of this where I'm listening to all of those.
 
-**The setup:**
+**It costs basically nothing.** Less than $10/month across both operations. I was burning more than that in time during a single review session.
 
-- 4 tracking lines across the 3 sites
-- 2 trade partners splitting the coverage
-- ~100+ calls in the first week
-- Partners pay **$50 per booked job** and **$12.50 per missed call**
+## My setup if you want to copy it
 
-### Why per-lead billing needs accurate scoring
+1. **Call tracking:** Twilio for the tracking numbers. Most R&R operators use [CallRail](/blog/callrail-vs-calloutcome) — CallOutcome works with both.
+2. **Scoring:** CallOutcome handles transcription + AI classification. Took about 5 minutes to connect my Twilio account, another 10 to pick which numbers to track.
+3. **Billing:** I pull the stats and invoice partners based on booked/missed counts.
+4. **Partner access:** Each partner gets their own login. They only see their own calls. Full transparency.
 
-With the Spokane site, my partner pays a flat weekly rate, so call classification is about transparency and reporting. With the Toowoomba sites, classification directly affects how much I bill. Every misclassified call is money left on the table or an overcharge that damages trust.
-
-If I classify a "not booked" call as "booked", I am overcharging my partner $50 for that call. If I miss a legitimate booking, I am losing $50. At 100+ calls per week, manual review is simply not scalable — and errors compound fast.
-
-### How the AI scoring works
-
-CallOutcome pulls recordings from my call tracking platform, runs them through speech-to-text transcription, then uses AI to read the transcript and answer one question: **did the customer and the tradesperson agree on a job?**
-
-It is not looking for keywords or call duration. It is [reading the actual conversation and understanding context](/blog/how-ai-call-scoring-works). A call where the customer says "I need my oven fixed" and the tech says "I can come Thursday at 2pm" and the customer says "Perfect" — that is a booked job. A call where they discuss pricing and the customer says "Let me talk to my wife" — that is not booked.
-
-### Results after week one
-
-| Metric | Value |
-|--------|-------|
-| Total calls processed | 100+ |
-| Time to set up | ~15 minutes |
-| Manual call reviews needed | 3 (edge cases I wanted to verify) |
-| AI accuracy | ~95%+ on clear calls |
-
-The 3 calls I manually reviewed were genuine edge cases — situations where the customer said something ambiguous like "yeah, sounds good, I'll call back to confirm the time." The AI correctly flagged these as "not booked" because no firm appointment was made.
-
-## What I Have Learned Running Both Operations
-
-### 1. Flat-rate and per-lead billing both benefit from scoring
-
-With Spokane (flat rate), call scoring builds trust and retains the partner. With Toowoomba (per lead), it directly protects revenue. Either way, you need to know which calls booked.
-
-### 2. Manual call review does not scale past ~30 calls per week
-
-If you are running one site with 10 calls a week, you can listen to everything. Once you are running multiple sites across multiple markets, manual review becomes a full-time job. Across Spokane and Toowoomba, I am processing 200+ calls per month. There is no way I am listening to all of those.
-
-### 3. Shared dashboards reduce partner churn
-
-Before CallOutcome, my Spokane partner occasionally questioned the call volume numbers. Now he logs into his own dashboard and sees every call with a transcript. No more "I don't think I got that many calls this week." The data is right there.
-
-### 4. Missed call tracking is surprisingly valuable
-
-I did not expect this, but tracking missed calls turned out to be one of the most useful features. When I can show a partner that they missed 8 calls last Tuesday, that is a conversation about them hiring a receptionist — not about whether my leads are any good. It shifts the blame from my lead quality to their call handling.
-
-### 5. The cost is negligible
-
-Across both operations, my AI call scoring costs less than $10 per month. I was spending that much time on manual review in a single afternoon. The ROI is absurd.
-
-## My Tech Setup
-
-For anyone wanting to replicate this:
-
-1. **Call tracking:** I use Twilio for my tracking numbers. CallOutcome also integrates with [CallRail](/blog/callrail-vs-calloutcome), which is what most rank-and-rent operators use.
-2. **Call scoring:** CallOutcome handles transcription and AI classification automatically. I connected my Twilio account in about 5 minutes.
-3. **Billing:** I pull the monthly stats from CallOutcome and invoice my partners based on the booked/missed call counts.
-4. **Partner access:** Each partner has their own login where they can see only their calls. Full transparency.
-
-The whole setup takes about 15 minutes. Connect your call tracking, select your numbers, and the AI starts scoring calls automatically.
-
-## The Bottom Line
-
-If you are running rank-and-rent sites and still manually listening to calls or guessing based on call duration, you are wasting hours every month and leaving money on the table.
-
-AI call scoring is not a "nice to have" — it is the difference between running a professional lead gen operation and running a hobby. Your partners expect data. Your billing depends on accuracy. And your time is worth more than listening to phone calls.
-
-I have been running both operations through CallOutcome and the time savings alone justify the switch. The accuracy, the shared dashboards, and the elimination of billing disputes are just bonuses.
+Whole thing took maybe 15 minutes to set up. If you're still manually listening to calls or guessing based on duration, you're wasting hours every month that you don't need to.
