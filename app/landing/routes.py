@@ -15,9 +15,9 @@ def landing():
         Call.classification == "JOB_BOOKED"
     ).scalar() or 0
 
-    # Round down to nearest 10 for a natural appearance
-    total_calls_display = (total_calls // 10) * 10 if total_calls >= 10 else total_calls
-    jobs_booked_display = (jobs_booked // 10) * 10 if jobs_booked >= 10 else jobs_booked
+    # Round down to nearest 10 for a natural appearance, with minimum floors
+    total_calls_display = max((total_calls // 10) * 10, 500)
+    jobs_booked_display = max((jobs_booked // 10) * 10, 100)
 
     return render_template(
         "landing/index.html",
