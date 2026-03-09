@@ -542,9 +542,29 @@ def create_shared_link():
     password = request.form.get("password", "").strip()
     show_recordings = "show_recordings" in request.form
     show_transcripts = "show_transcripts" in request.form
-    date_window_days = request.form.get("date_window_days", 30, type=int)
-    if date_window_days not in (0, 7, 14, 30, 60, 90):
-        date_window_days = 30
+    date_mode = request.form.get("date_mode", "rolling")
+    date_from = None
+    date_to = None
+
+    if date_mode == "custom":
+        from datetime import date as date_type
+        date_window_days = None
+        date_from_str = request.form.get("date_from", "")
+        date_to_str = request.form.get("date_to", "")
+        try:
+            date_from = date_type.fromisoformat(date_from_str) if date_from_str else None
+            date_to = date_type.fromisoformat(date_to_str) if date_to_str else None
+        except ValueError:
+            pass
+        if not date_from or not date_to:
+            flash("Please provide both a start and end date.", "error")
+            return redirect(url_for("dashboard.shared_links"))
+        if date_from > date_to:
+            date_from, date_to = date_to, date_from
+    else:
+        date_window_days = request.form.get("date_window_days", 30, type=int)
+        if date_window_days not in (0, 7, 14, 30, 60, 90):
+            date_window_days = 30
 
     # Get selected line IDs and validate they belong to this account + partner
     line_ids = request.form.getlist("line_ids", type=int)
@@ -569,6 +589,8 @@ def create_shared_link():
         show_recordings=show_recordings,
         show_transcripts=show_transcripts,
         date_window_days=date_window_days,
+        date_from=date_from,
+        date_to=date_to,
     )
     dashboard.tracking_lines = valid_lines
     db.session.add(dashboard)
