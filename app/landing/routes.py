@@ -43,9 +43,13 @@ def try_page():
     utm = {p: request.args[p] for p in UTM_PARAMS if p in request.args}
     utm_query = '?' + urlencode(utm) if utm else ''
 
+    # Pass utm_content for dynamic hero headline matching
+    utm_content = request.args.get('utm_content', '')
+
     return render_template(
         "landing/try.html",
         total_calls=total_calls,
         jobs_booked=jobs_booked,
         utm_query=utm_query,
+        utm_content=utm_content,
     )
