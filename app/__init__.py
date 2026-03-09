@@ -1,8 +1,10 @@
+import json
 import os
+from collections import Counter
 from datetime import datetime, timezone
 
-from flask import Flask, redirect, render_template, Response
-from flask_login import LoginManager
+from flask import Flask, redirect, render_template, Response, abort
+from flask_login import LoginManager, login_required, current_user
 from flask_migrate import Migrate
 
 from .config import Config
@@ -173,5 +175,53 @@ def create_app():
         xml_parts.append('</urlset>')
 
         return Response('\n'.join(xml_parts), mimetype='application/xml')
+
+    @app.route('/admin/signups')
+    @login_required
+    def admin_signups():
+        if not current_user.is_admin:
+            abort(403)
+
+        accounts = Account.query.order_by(Account.created_at.desc()).all()
+
+        # Parse signup_source JSON and build summary
+        signups = []
+        source_counts = Counter()
+        campaign_counts = Counter()
+        for acct in accounts:
+            source_data = {}
+            if acct.signup_source:
+                try:
+                    source_data = json.loads(acct.signup_source)
+                except (json.JSONDecodeError, TypeError):
+                    source_data = {'raw': acct.signup_source}
+
+            utm_source = source_data.get('utm_source', 'direct')
+            utm_campaign = source_data.get('utm_campaign', '')
+            utm_content = source_data.get('utm_content', '')
+            source_counts[utm_source] += 1
+            if utm_campaign:
+                campaign_counts[f"{utm_source} / {utm_campaign}"] += 1
+
+            signups.append({
+                'id': acct.id,
+                'name': acct.name,
+                'email': acct.email,
+                'plan': acct.stripe_plan or 'free',
+                'created_at': acct.created_at,
+                'utm_source': utm_source,
+                'utm_medium': source_data.get('utm_medium', ''),
+                'utm_campaign': utm_campaign,
+                'utm_content': utm_content,
+            })
+
+        return render_template(
+            'admin/signups.html',
+            signups=signups,
+            source_counts=source_counts.most_common(),
+            campaign_counts=campaign_counts.most_common(),
+            total=len(signups),
+            active_page='admin',
+        )
 
     return app

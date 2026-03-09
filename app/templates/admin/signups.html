@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Signups — Admin — CallOutcome{% endblock %}
+
+{% block content %}
+<h2>Signup Tracker</h2>
+<p>{{ total }} total account{{ 's' if total != 1 }} registered.</p>
+
+<!-- Source breakdown -->
+<article>
+    <h3>Signups by Source</h3>
+    <table>
+        <thead>
+            <tr><th>Source</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for source, count in source_counts %}
+            <tr>
+                <td>{{ source }}</td>
+                <td>{{ count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</article>
+
+{% if campaign_counts %}
+<article>
+    <h3>Signups by Campaign</h3>
+    <table>
+        <thead>
+            <tr><th>Source / Campaign</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+            {% for campaign, count in campaign_counts %}
+            <tr>
+                <td>{{ campaign }}</td>
+                <td>{{ count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</article>
+{% endif %}
+
+<!-- All signups -->
+<article>
+    <h3>All Signups</h3>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Plan</th>
+                    <th>Source</th>
+                    <th>Medium</th>
+                    <th>Campaign</th>
+                    <th>Ad</th>
+                    <th>Signed Up</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in signups %}
+                <tr>
+                    <td>{{ s.id }}</td>
+                    <td>{{ s.name }}</td>
+                    <td>{{ s.email }}</td>
+                    <td>{{ s.plan | capitalize }}</td>
+                    <td>{{ s.utm_source }}</td>
+                    <td>{{ s.utm_medium or '—' }}</td>
+                    <td>{{ s.utm_campaign or '—' }}</td>
+                    <td>{{ s.utm_content or '—' }}</td>
+                    <td>{{ s.created_at | localtime('%d %b %Y %H:%M') if s.created_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</article>
+{% endblock %}

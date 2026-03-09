@@ -2,7 +2,7 @@
 
 **Campaign:** Reddit Ads, $25/day, 20 days
 **Format:** Promoted posts (native look)
-**Target subreddits:** r/SEO, r/LocalSEO, r/PPC, r/juststart, r/sweatystartup, r/digital_marketing, r/Entrepreneur
+**Target subreddits:** r/PPC, r/leadgeneration, r/LocalSEO
 **Landing page:** https://calloutcome.com/try?utm_source=reddit&utm_medium=paid&utm_campaign=launch_2026_03
 **CTA:** Start Your Free Trial (links to /try)
 
@@ -108,14 +108,23 @@ All ads now use text-overlay versions of the dashboard screenshot (`app/static/d
 
 ## Targeting (Updated 2026-03-09)
 
-**Subreddits (consolidated from 7 → 3):**
-- r/juststart
-- r/LocalSEO
-- r/sweatystartup
+**Subreddits (re-evaluated for lead gen operator fit):**
+- **r/PPC** (253K) — pay-per-call operators, highest intent for call tracking tools
+- **r/leadgeneration** (56K) — pay-per-lead operators, directly our audience
+- **r/LocalSEO** (30K) — rank-and-rent operators hang out here
 
-**Removed:** r/SEO, r/Entrepreneur, r/digital_marketing, r/PPC (too broad, lower conversion intent)
+**Removed:**
+- r/sweatystartup — tradies/service business owners, NOT lead gen operators (they're our users' partners, not our users)
+- r/juststart — mostly affiliate/content site builders, low overlap with call-based lead gen
+- r/SEO, r/Entrepreneur, r/digital_marketing — too broad, low conversion intent
 
-**Rationale:** A$25/day across 7 subs = ~A$3.50/sub/day = 1-3 clicks each, not enough data. Consolidating to 3 subs = ~A$8/sub/day = 4-8 clicks = meaningful signal within a week.
+**Future expansion (if budget allows):**
+- r/agency (83K) — agency owners managing call tracking for clients
+- r/juststart (173K) — broader net, some rank-and-rent overlap
+
+**Note:** r/RankandRent (159 members), r/paypercall (599) are dead/restricted. The rank-and-rent community lives inside r/PPC, r/LocalSEO, and r/leadgeneration.
+
+**Rationale:** A$25/day across 3 subs = ~A$8/sub/day = enough signal to optimise within a week. All 3 subs contain people who actually run lead gen operations with tracking numbers.
 
 ## Notes
 
