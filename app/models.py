@@ -38,6 +38,9 @@ class Account(UserMixin, db.Model):
     password_reset_token = db.Column(db.String(64))
     password_reset_expires = db.Column(db.DateTime)
 
+    # Acquisition tracking
+    signup_source = db.Column(db.String(500))  # JSON: {"utm_source": ..., "utm_medium": ..., etc.}
+
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc)
     )

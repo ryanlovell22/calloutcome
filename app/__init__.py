@@ -114,6 +114,7 @@ def create_app():
         body = (
             "User-agent: *\n"
             "Allow: /welcome\n"
+            "Allow: /try\n"
             "Allow: /blog/\n"
             "Disallow: /dashboard\n"
             "Disallow: /auth/\n"

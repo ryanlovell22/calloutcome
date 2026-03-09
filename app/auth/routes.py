@@ -1,12 +1,14 @@
+import json
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from flask import current_app, render_template, redirect, url_for, flash, request
+from flask import current_app, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, current_user
 
 from ..models import db, Account
 from ..email_service import send_email
 from ..extensions import limiter
+from ..utm_utils import capture_utm
 from . import bp
 
 
@@ -44,6 +46,9 @@ def signup():
             return redirect(url_for("onboarding.wizard"))
         return redirect(url_for("dashboard.index"))
 
+    # Capture UTM params on page load
+    capture_utm()
+
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
@@ -64,6 +69,12 @@ def signup():
         is_admin = email in current_app.config.get("ADMIN_EMAILS", [])
         account = Account(name=name, email=email, is_admin=is_admin)
         account.set_password(password)
+
+        # Store acquisition source from UTM params
+        utm_data = session.pop('utm_data', None)
+        if utm_data:
+            account.signup_source = json.dumps(utm_data)
+
         db.session.add(account)
         db.session.commit()
 

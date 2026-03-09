@@ -2,6 +2,12 @@
 {% block title %}Get Started — CallOutcome{% endblock %}
 
 {% block content %}
+<!-- Fire Reddit pixel signup conversion on onboarding page load -->
+<script>
+if (typeof rdt === 'function') {
+    rdt('track', 'SignUp');
+}
+</script>
 <div style="max-width: 650px; margin: 0 auto;">
 
 <h2>Get Started</h2>
