@@ -275,66 +275,6 @@
             color: var(--pico-muted-color);
         }
 
-        /* Comparison table */
-        .comparison-section {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 2rem 0;
-        }
-        .comparison-section h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        .comparison-table-desktop {
-            font-size: 0.9rem;
-        }
-        .comparison-table-desktop th,
-        .comparison-table-desktop td {
-            padding: 0.6rem 0.75rem;
-            vertical-align: top;
-        }
-        .comparison-table-desktop thead th:last-child {
-            color: var(--pico-primary);
-        }
-        /* Mobile stacked comparison cards */
-        .comparison-cards-mobile {
-            display: none;
-        }
-        .comp-card {
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 8px;
-            padding: 1rem 1.25rem;
-            margin-bottom: 0.75rem;
-            background: rgba(255,255,255,0.03);
-        }
-        .comp-card h4 {
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-        }
-        .comp-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.35rem 0;
-            font-size: 0.85rem;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .comp-row:last-child {
-            border-bottom: none;
-        }
-        .comp-row span:first-child {
-            color: var(--pico-muted-color);
-        }
-        .comp-row span:last-child {
-            font-weight: 600;
-        }
-        .comp-card.highlight-card {
-            border-color: var(--pico-primary);
-            background: rgba(16, 149, 193, 0.06);
-        }
-        .comp-card.highlight-card h4 {
-            color: var(--pico-primary);
-        }
-
         /* FAQ */
         .faq-section {
             max-width: 680px;
@@ -356,26 +296,6 @@
             color: var(--pico-muted-color);
             font-size: 0.95rem;
             line-height: 1.6;
-        }
-
-        /* Founder quote */
-        .founder-quote {
-            text-align: center;
-            max-width: 640px;
-            margin: 0 auto;
-            padding: 2rem 0;
-        }
-        .founder-quote blockquote {
-            font-size: 1.05rem;
-            font-style: italic;
-            border-left: none;
-            padding: 0;
-            line-height: 1.7;
-            margin-bottom: 0.75rem;
-        }
-        .founder-quote cite {
-            color: var(--pico-muted-color);
-            font-size: 0.9rem;
         }
 
         /* Final CTA */
@@ -441,10 +361,6 @@
             .solution-steps { grid-template-columns: 1fr; }
             .pricing-grid { grid-template-columns: repeat(2, 1fr); }
             .proof-bar { grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-
-            /* Swap table for stacked cards on mobile */
-            .comparison-table-desktop { display: none; }
-            .comparison-cards-mobile { display: block; }
 
             /* Sticky mobile CTA bar */
             .sticky-cta {
@@ -523,11 +439,11 @@
             <h1>Stop Listening to Every Call to Figure Out What Happened</h1>
             <p class="subhead">CallOutcome analyses your call recordings with AI and tells you the outcome of every call — job booked, not booked, or voicemail. Connects to CallRail or Twilio in under 2 minutes.</p>
             {% endif %}
-            <a href="/auth/signup{{ utm_query }}" role="button" class="cta-btn">Start Your Free Trial</a>
-            <small class="trust-line">Free plan — 10 calls/month. No credit card required.</small>
+            <a href="/auth/signup{{ utm_query }}" role="button" class="cta-btn">Score Your First 50 Calls Free</a>
+            <small class="trust-line">Set up in 2 minutes. See your first result on the next call. No credit card.</small>
         </section>
 
-        <!-- Social proof bar (moved up — visible near top) -->
+        <!-- Social proof bar -->
         {% if total_calls > 0 %}
         <section>
             <div class="proof-bar">
@@ -546,6 +462,15 @@
             </div>
         </section>
         {% endif %}
+
+        <!-- Dashboard preview (moved up — first visual proof) -->
+        <section class="dashboard-preview">
+            <picture>
+                <source srcset="{{ url_for('static', filename='dashboard-preview.webp') }}" type="image/webp">
+                <img src="{{ url_for('static', filename='dashboard-preview.png') }}" alt="CallOutcome dashboard showing call classifications, transcripts, and lead value" loading="lazy" width="1110" height="855">
+            </picture>
+            <p class="caption">Real dashboard — every call scored, classified, and ready to share.</p>
+        </section>
 
         <!-- Integration line -->
         <div class="integration-line">
@@ -589,41 +514,32 @@
             </div>
         </section>
 
-        <!-- Solution -->
+        <!-- What happens after signup -->
         <section class="solution-strip">
-            <h2>CallOutcome Fixes This in 3 Steps</h2>
+            <h2>What Happens After You Sign Up?</h2>
             <div class="solution-steps">
                 <article class="solution-step">
                     <div class="step-num">1</div>
                     <h4>Connect</h4>
-                    <p>Link your CallRail or Twilio account. We auto-detect your tracking numbers.</p>
+                    <p>Paste your CallRail or Twilio credentials. We auto-detect your tracking numbers.</p>
                 </article>
                 <article class="solution-step">
                     <div class="step-num">2</div>
-                    <h4>Score</h4>
-                    <p>AI analyses every call recording — full transcript + classification in minutes.</p>
+                    <h4>AI Scores Calls</h4>
+                    <p>Every call gets a full transcript and is classified: job booked, not booked, or voicemail. Automatically.</p>
                 </article>
                 <article class="solution-step">
                     <div class="step-num">3</div>
-                    <h4>Share</h4>
-                    <p>Give partners a proof dashboard. No login needed. No more "prove it" conversations.</p>
+                    <h4>Check Your Dashboard</h4>
+                    <p>See results on the next call. Share proof dashboards with partners — no login needed.</p>
                 </article>
             </div>
         </section>
 
-        <!-- Dashboard preview -->
-        <section class="dashboard-preview">
-            <picture>
-                <source srcset="{{ url_for('static', filename='dashboard-preview.webp') }}" type="image/webp">
-                <img src="{{ url_for('static', filename='dashboard-preview.png') }}" alt="CallOutcome dashboard showing call classifications, transcripts, and lead value" loading="lazy" width="1110" height="855">
-            </picture>
-            <p class="caption">Real dashboard — every call scored, classified, and ready to share.</p>
-        </section>
-
-        <!-- Mid-page CTA (after dashboard preview) -->
+        <!-- Mid-page CTA -->
         <section class="mid-cta">
             <p>See it with your own calls</p>
-            <a href="/auth/signup{{ utm_query }}" role="button" class="cta-btn">Start Your Free Trial</a>
+            <a href="/auth/signup{{ utm_query }}" role="button" class="cta-btn">Score Your First 50 Calls Free</a>
         </section>
 
         <!-- Pricing -->
@@ -634,7 +550,7 @@
                     <span class="pricing-badge">Start here</span>
                     <h4>Free</h4>
                     <div class="price">$0</div>
-                    <div class="calls">10 calls/mo</div>
+                    <div class="calls">50 calls/mo</div>
                 </div>
                 <div class="pricing-card">
                     <h4>Starter</h4>
@@ -652,100 +568,12 @@
                     <div class="calls">1,500 calls/mo</div>
                 </div>
             </div>
+            <p style="text-align: center; margin-top: 1.25rem; font-size: 0.9rem; color: var(--pico-muted-color);">
+                Want lifetime access? <a href="/founding">See the Founding 50 deal &rarr;</a>
+            </p>
         </section>
 
-        <!-- Comparison table -->
-        <section class="comparison-section">
-            <h2>How Does It Compare?</h2>
-
-            <!-- Desktop table -->
-            <table class="comparison-table-desktop">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Manual Review</th>
-                        <th>CallRail CI</th>
-                        <th>CallOutcome</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Transcripts</strong></td>
-                        <td>You listen</td>
-                        <td>Included</td>
-                        <td>Included</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Classification</strong></td>
-                        <td>You decide</td>
-                        <td>Keyword-based</td>
-                        <td>AI (booked / not / voicemail)</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Partner proof</strong></td>
-                        <td>Spreadsheet</td>
-                        <td>Not available</td>
-                        <td>Shareable dashboard link</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Setup</strong></td>
-                        <td>N/A</td>
-                        <td>15+ min</td>
-                        <td>Under 2 min</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Price</strong></td>
-                        <td>Your time</td>
-                        <td>$100+/mo extra</td>
-                        <td>Free – $29/mo</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <!-- Mobile stacked cards -->
-            <div class="comparison-cards-mobile">
-                <div class="comp-card">
-                    <h4>Manual Review</h4>
-                    <div class="comp-row"><span>Transcripts</span> <span>You listen</span></div>
-                    <div class="comp-row"><span>Classification</span> <span>You decide</span></div>
-                    <div class="comp-row"><span>Partner proof</span> <span>Spreadsheet</span></div>
-                    <div class="comp-row"><span>Setup</span> <span>N/A</span></div>
-                    <div class="comp-row"><span>Price</span> <span>Your time</span></div>
-                </div>
-                <div class="comp-card">
-                    <h4>CallRail CI</h4>
-                    <div class="comp-row"><span>Transcripts</span> <span>Included</span></div>
-                    <div class="comp-row"><span>Classification</span> <span>Keyword-based</span></div>
-                    <div class="comp-row"><span>Partner proof</span> <span>Not available</span></div>
-                    <div class="comp-row"><span>Setup</span> <span>15+ min</span></div>
-                    <div class="comp-row"><span>Price</span> <span>$100+/mo extra</span></div>
-                </div>
-                <div class="comp-card highlight-card">
-                    <h4>CallOutcome</h4>
-                    <div class="comp-row"><span>Transcripts</span> <span>Included</span></div>
-                    <div class="comp-row"><span>Classification</span> <span>AI (booked / not / voicemail)</span></div>
-                    <div class="comp-row"><span>Partner proof</span> <span>Shareable dashboard</span></div>
-                    <div class="comp-row"><span>Setup</span> <span>Under 2 min</span></div>
-                    <div class="comp-row"><span>Price</span> <span>Free – $29/mo</span></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Post-comparison CTA -->
-        <section class="mid-cta">
-            <p>Ready to switch?</p>
-            <a href="/auth/signup{{ utm_query }}" role="button" class="cta-btn">Start Your Free Trial</a>
-        </section>
-
-        <!-- Founder quote (strengthened, named) -->
-        <section class="founder-quote">
-            <blockquote>
-                "I was spending hours every week listening to call recordings just to classify each one. Now the AI does it in minutes and my partners can see the proof dashboard themselves. No disputes, no guesswork."
-            </blockquote>
-            <cite>— Ryan, rank-and-rent operator, Adelaide AU</cite>
-        </section>
-
-        <!-- FAQ (rewritten for Reddit audience) -->
+        <!-- FAQ -->
         <section class="faq-section">
             <h2>Frequently Asked Questions</h2>
 
@@ -760,7 +588,7 @@
             </details>
 
             <details>
-                <summary>What happens after the 10 free calls?</summary>
+                <summary>What happens after the 50 free calls?</summary>
                 <p>You upgrade to Starter ($29/mo for 100 calls) or stop. No surprise charges, no automatic upgrades. You're on the free plan until you choose to change it.</p>
             </details>
 
@@ -771,7 +599,7 @@
 
             <details>
                 <summary>Can I try it with my real calls before committing?</summary>
-                <p>Yes. The free plan processes 10 real calls from your Twilio or CallRail account — full transcripts, AI classification, and dashboard. No demo data, no sandbox.</p>
+                <p>Yes. The free plan processes 50 real calls from your Twilio or CallRail account — full transcripts, AI classification, and dashboard. No demo data, no sandbox.</p>
             </details>
 
             <details>
@@ -787,10 +615,10 @@
 
         <!-- Final CTA -->
         <section class="final-cta">
-            <h2>Try It Free. See Results in 5 Minutes.</h2>
+            <h2>Try It Free. See Results on Your Next Call.</h2>
             <p>Connect your call tracking, let the AI score your calls, and see exactly what every call delivered.</p>
-            <a href="/auth/signup{{ utm_query }}" role="button" class="cta-btn">Start Your Free Trial</a>
-            <small class="cta-small">Free plan — 10 calls/month. No credit card. Cancel anytime.</small>
+            <a href="/auth/signup{{ utm_query }}" role="button" class="cta-btn">Score Your First 50 Calls Free</a>
+            <small class="cta-small">50 calls/month free. No credit card. Cancel anytime.</small>
         </section>
     </main>
 
@@ -807,7 +635,7 @@
     <!-- Sticky mobile CTA bar (CSS-only, mobile only) -->
     <div class="sticky-cta">
         <span class="sticky-trust">No credit card</span>
-        <a href="/auth/signup{{ utm_query }}" role="button">Start Free Trial</a>
+        <a href="/auth/signup{{ utm_query }}" role="button">Score 50 Calls Free</a>
     </div>
 
 </body>

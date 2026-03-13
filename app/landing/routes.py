@@ -4,7 +4,7 @@ from flask import render_template, request
 from sqlalchemy import func
 
 from . import bp
-from ..models import db, Call
+from ..models import db, Call, Account
 from ..utm_utils import capture_utm, UTM_PARAMS
 
 
@@ -53,3 +53,20 @@ def try_page():
         utm_query=utm_query,
         utm_content=utm_content,
     )
+
+
+@bp.route("/founding")
+def founding():
+    capture_utm()
+    founding_count = Account.query.filter_by(is_founding_member=True).count()
+    spots_remaining = max(50 - founding_count, 0)
+    return render_template(
+        "landing/founding.html",
+        spots_remaining=spots_remaining,
+    )
+
+
+@bp.route("/calculator")
+def calculator():
+    capture_utm()
+    return render_template("landing/calculator.html")

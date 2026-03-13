@@ -28,7 +28,7 @@ class Account(UserMixin, db.Model):
     stripe_customer_id = db.Column(db.String(255))
     stripe_subscription_id = db.Column(db.String(255))
     stripe_plan = db.Column(db.String(20), default="free")  # free/starter/pro/agency
-    plan_calls_limit = db.Column(db.Integer, default=10)
+    plan_calls_limit = db.Column(db.Integer, default=50)
     plan_calls_used = db.Column(db.Integer, default=0)
     plan_period_start = db.Column(db.DateTime)
     plan_period_end = db.Column(db.DateTime)
@@ -37,6 +37,10 @@ class Account(UserMixin, db.Model):
     # Password reset
     password_reset_token = db.Column(db.String(64))
     password_reset_expires = db.Column(db.DateTime)
+
+    # Founding member (lifetime deal)
+    is_founding_member = db.Column(db.Boolean, default=False)
+    founding_member_number = db.Column(db.Integer, nullable=True)
 
     # Acquisition tracking
     signup_source = db.Column(db.String(500))  # JSON: {"utm_source": ..., "utm_medium": ..., etc.}

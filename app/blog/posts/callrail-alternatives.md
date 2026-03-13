@@ -117,7 +117,7 @@ If you are looking for a CallRail alternative specifically because you want bett
 
 AI call analysis that actually understands conversational context (not just keyword matching) is a different product category from call tracking. The platforms that do this well:
 
-**CallOutcome** — Built specifically for lead gen operators. Connects to your existing CallRail or Twilio account, pulls recordings, transcribes them, and classifies each call as Job Booked, Not Booked, Voicemail, or Spam. Full context analysis, not keyword rules. Includes proof dashboards for sharing with clients. Pricing starts at free (10 calls/month). I built this because I needed it for my own pay per call operation. For the full story, see [how AI call scoring works](/blog/how-ai-call-scoring-works).
+**CallOutcome** — Built specifically for lead gen operators. Connects to your existing CallRail or Twilio account, pulls recordings, transcribes them, and classifies each call as Job Booked, Not Booked, Voicemail, or Spam. Full context analysis, not keyword rules. Includes proof dashboards for sharing with clients. Pricing starts at free (50 calls/month). I built this because I needed it for my own pay per call operation. For the full story, see [how AI call scoring works](/blog/how-ai-call-scoring-works).
 
 **CallRail Conversation Intelligence** — Good for basic keyword spotting and call summaries. Falls short on contextual booking detection. Adds $50-100/month to your CallRail plan.
 
@@ -161,4 +161,4 @@ This is what [CallOutcome](/welcome) is built for. It is not a CallRail replacem
 
 If you are running [pay per call lead generation](/blog/pay-per-call-lead-generation) sites and billing per outcome, call scoring is not optional — it is how you keep partners and get paid accurately.
 
-Connect your CallRail or Twilio account to [CallOutcome](/welcome) in under 5 minutes. The free plan scores 10 calls per month. See the difference it makes before committing.
+Connect your CallRail or Twilio account to [CallOutcome](/welcome) in under 5 minutes. The free plan scores 50 calls per month. See the difference it makes before committing.

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en-AU" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ROI Calculator — How Much Is Manual Call Review Costing You? | CallOutcome</title>
+    <meta name="description" content="Calculate how many hours and dollars you waste reviewing call recordings manually. See how much you'd save with AI call scoring from CallOutcome.">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ROI Calculator — How Much Is Manual Call Review Costing You?">
+    <meta property="og:description" content="Calculate how many hours you waste reviewing call recordings manually, and what AI call scoring would save you.">
+    <meta property="og:image" content="https://calloutcome.com/static/og-image.png">
+    <meta property="og:url" content="https://calloutcome.com/calculator">
+
+    <link rel="canonical" href="https://calloutcome.com/calculator">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%231095c1'/><path d='M30 52l15 15 25-30' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+
+    <!-- Preconnect -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- Microsoft Clarity -->
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "vrhl1i276u");
+    </script>
+
+    <!-- Pico CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+
+    <style>
+        body {
+            background: linear-gradient(180deg, var(--pico-background-color) 0%, rgba(16, 149, 193, 0.03) 50%, var(--pico-background-color) 100%);
+        }
+
+        .calc-hero {
+            text-align: center;
+            padding: 3rem 0 1.5rem;
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .calc-hero h1 {
+            font-size: 2.2rem;
+            line-height: 1.15;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #ffffff 0%, #1095c1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .calc-hero p {
+            color: var(--pico-muted-color);
+            font-size: 1.05rem;
+        }
+
+        /* Calculator form */
+        .calc-form {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 2rem 0;
+        }
+        .calc-form label {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .calc-form small {
+            color: var(--pico-muted-color);
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .calc-form input[type="number"] {
+            max-width: 200px;
+        }
+
+        /* Results card */
+        .calc-results {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            border: 2px solid var(--pico-primary);
+            border-radius: 12px;
+            background: rgba(16, 149, 193, 0.04);
+            display: none;
+        }
+        .calc-results.visible {
+            display: block;
+        }
+        .calc-results h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .result-item {
+            text-align: center;
+        }
+        .result-num {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--pico-primary);
+        }
+        .result-num.savings {
+            color: #22c55e;
+        }
+        .result-num.waste {
+            color: var(--pico-del-color);
+        }
+        .result-label {
+            font-size: 0.85rem;
+            color: var(--pico-muted-color);
+        }
+        .result-cta {
+            text-align: center;
+            padding-top: 1rem;
+        }
+        .result-cta .cta-text {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .calc-footer {
+            text-align: center;
+            padding: 2rem 0;
+            font-size: 0.8rem;
+            color: var(--pico-muted-color);
+        }
+        .calc-footer a {
+            color: var(--pico-muted-color);
+        }
+
+        @media (max-width: 768px) {
+            .calc-hero h1 { font-size: 1.75rem; }
+            .result-grid { grid-template-columns: 1fr; gap: 1rem; }
+            .result-num { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="container">
+        <nav>
+            <ul><li><strong>CallOutcome</strong></li></ul>
+            <ul>
+                <li><a href="/try">Try free</a></li>
+                <li><a href="/auth/login">Log in</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="calc-hero">
+            <h1>How Much Is Manual Call Review Costing You?</h1>
+            <p>Plug in your numbers. See what you'd save with AI call scoring.</p>
+        </section>
+
+        <section class="calc-form">
+            <label for="lines">How many tracking lines do you run?</label>
+            <input type="number" id="lines" value="5" min="1" max="500">
+
+            <label for="calls_per_week">Average calls per line per week</label>
+            <input type="number" id="calls_per_week" value="10" min="1" max="500">
+
+            <label for="minutes_per_call">Minutes to review each call manually</label>
+            <small>Includes listening, noting outcome, updating spreadsheet</small>
+            <input type="number" id="minutes_per_call" value="3" min="1" max="30">
+
+            <label for="hourly_rate">Your effective hourly rate ($)</label>
+            <small>What's your time worth? Be honest.</small>
+            <input type="number" id="hourly_rate" value="50" min="10" max="1000">
+
+            <button type="button" id="calculate-btn" style="margin-top: 1rem;">Calculate My Savings</button>
+        </section>
+
+        <section class="calc-results" id="results">
+            <h2>Your Numbers</h2>
+
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-num waste" id="hours-wasted">—</div>
+                    <div class="result-label">Hours wasted per month</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-num waste" id="cost-manual">—</div>
+                    <div class="result-label">Cost of manual review / month</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-num" id="calloutcome-cost">—</div>
+                    <div class="result-label">CallOutcome cost / month</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-num savings" id="monthly-savings">—</div>
+                    <div class="result-label">Your monthly savings</div>
+                </div>
+            </div>
+
+            <div class="result-cta">
+                <p class="cta-text" id="cta-text"></p>
+                <a href="/auth/signup" role="button">Score Your First 50 Calls Free</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="container calc-footer">
+        <hr>
+        <small>CallOutcome &copy; 2026 &nbsp;|&nbsp; <a href="/welcome">Learn more</a> &nbsp;|&nbsp; <a href="/try">Try free</a> &nbsp;|&nbsp; <a href="/privacy">Privacy</a> &nbsp;|&nbsp; <a href="/terms">Terms</a></small>
+    </footer>
+
+    <script>
+    document.getElementById('calculate-btn').addEventListener('click', function() {
+        var lines = parseInt(document.getElementById('lines').value) || 1;
+        var callsPerWeek = parseInt(document.getElementById('calls_per_week').value) || 1;
+        var minutesPerCall = parseInt(document.getElementById('minutes_per_call').value) || 1;
+        var hourlyRate = parseInt(document.getElementById('hourly_rate').value) || 50;
+
+        var totalCallsPerMonth = lines * callsPerWeek * 4.33;
+        var hoursPerMonth = (totalCallsPerMonth * minutesPerCall) / 60;
+        var manualCost = hoursPerMonth * hourlyRate;
+
+        // Determine CallOutcome plan cost
+        var calloutcomeCost = 0;
+        var planName = 'Free';
+        if (totalCallsPerMonth <= 50) {
+            calloutcomeCost = 0;
+            planName = 'Free';
+        } else if (totalCallsPerMonth <= 100) {
+            calloutcomeCost = 29;
+            planName = 'Starter';
+        } else if (totalCallsPerMonth <= 500) {
+            calloutcomeCost = 79;
+            planName = 'Pro';
+        } else {
+            calloutcomeCost = 149;
+            planName = 'Agency';
+        }
+
+        var savings = manualCost - calloutcomeCost;
+
+        document.getElementById('hours-wasted').textContent = Math.round(hoursPerMonth) + ' hrs';
+        document.getElementById('cost-manual').textContent = '$' + Math.round(manualCost).toLocaleString();
+        document.getElementById('calloutcome-cost').textContent = calloutcomeCost === 0 ? '$0 (Free)' : '$' + calloutcomeCost + '/mo (' + planName + ')';
+        document.getElementById('monthly-savings').textContent = '$' + Math.round(savings).toLocaleString();
+
+        var ctaText = 'Stop wasting ' + Math.round(hoursPerMonth) + ' hours a month.';
+        if (calloutcomeCost === 0) {
+            ctaText += ' Your ' + Math.round(totalCallsPerMonth) + ' calls/month fit in the free plan.';
+        }
+        document.getElementById('cta-text').textContent = ctaText;
+
+        document.getElementById('results').classList.add('visible');
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    </script>
+</body>
+</html>

@@ -201,7 +201,7 @@ If you are currently listening to call recordings manually, the time savings alo
 
 If you are billing clients per lead and dealing with disputes, the proof system pays for itself the first time a client accepts an invoice without pushback. For a detailed walkthrough of how to set that up, see [how to prove lead quality to clients](/blog/how-to-prove-lead-quality-to-clients). And if you are comparing this against CallRail's built-in tools, see our [CallRail vs CallOutcome breakdown](/blog/callrail-vs-calloutcome).
 
-[CallOutcome's free plan](/welcome) scores 10 calls per month — enough to see the accuracy and value before scaling up. Connect your CallRail or Twilio account in under 5 minutes and let the AI do the work.
+[CallOutcome's free plan](/welcome) scores 50 calls per month — enough to see the accuracy and value before scaling up. Connect your CallRail or Twilio account in under 5 minutes and let the AI do the work.
 
 If you are running [pay per call lead generation](/blog/pay-per-call-lead-generation) sites, AI scoring is what turns raw call volume into accurate billing. And if you are evaluating platforms, see our [CallRail alternatives comparison](/blog/callrail-alternatives) for an honest look at the options.
 

@@ -151,7 +151,7 @@ When you know your true conversion rate, you can price leads more precisely. Bet
 
 The best time to set up call conversion tracking is before you launch your next lead gen site. The second best time is now.
 
-If you are already using CallRail or Twilio, you can connect [CallOutcome](/welcome) in under 5 minutes and start scoring calls immediately. The free plan includes 10 calls per month — enough to see how it works before committing.
+If you are already using CallRail or Twilio, you can connect [CallOutcome](/welcome) in under 5 minutes and start scoring calls immediately. The free plan includes 50 calls per month — enough to see how it works before committing.
 
 For a broader look at tracking platform options, see our [CallRail alternatives comparison](/blog/callrail-alternatives). And to see real numbers from a live operation, read our [case study on AI call scoring across two rank-and-rent operations](/blog/case-study-rank-and-rent-call-scoring).
 

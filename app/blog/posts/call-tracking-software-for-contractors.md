@@ -184,7 +184,7 @@ Some contractors skip call recording because they are worried about privacy. In 
 
 If you are a contractor who is not yet tracking calls, start with the basics: one tracking number on your website, call recording enabled, and a weekly check of your dashboard.
 
-If you are already tracking calls and want to know which ones actually booked, try [CallOutcome's free plan](/welcome) — it scores 10 calls per month at no cost and connects to CallRail or Twilio in minutes.
+If you are already tracking calls and want to know which ones actually booked, try [CallOutcome's free plan](/welcome) — it scores 50 calls per month at no cost and connects to CallRail or Twilio in minutes.
 
 For a broader comparison of call tracking platforms beyond these three, see our [CallRail alternatives guide](/blog/callrail-alternatives). And if your lead gen partner runs a [pay per call](/blog/pay-per-call-lead-generation) model, understanding how call tracking fits into their operation helps you evaluate what you are paying for.
 

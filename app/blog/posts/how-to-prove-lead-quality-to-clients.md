@@ -180,7 +180,7 @@ If you are currently billing based on call duration and dealing with regular dis
 3. Let the AI score your first batch of calls
 4. Share the proof dashboard with your client alongside your next invoice
 
-The free plan scores 10 calls per month — enough to see the difference it makes before scaling up.
+The free plan scores 50 calls per month — enough to see the difference it makes before scaling up.
 
 If you are comparing call tracking platforms, see our [CallRail alternatives guide](/blog/callrail-alternatives) for an honest comparison of the options.
 

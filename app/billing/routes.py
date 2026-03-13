@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
 
 from ..models import db
-from ..stripe_service import create_checkout_session, create_customer_portal_session
+from ..stripe_service import create_checkout_session, create_founding_checkout_session, create_customer_portal_session
 from . import bp
 
 logger = logging.getLogger(__name__)
@@ -64,6 +64,44 @@ def checkout():
         logger.exception("Failed to create checkout session")
         flash("Failed to start checkout. Please try again.", "error")
         return redirect(url_for("billing.index"))
+
+
+@bp.route("/founding-checkout", methods=["POST"])
+@login_required
+@account_required
+def founding_checkout():
+    from ..models import Account
+
+    # Check if spots are still available
+    founding_count = Account.query.filter_by(is_founding_member=True).count()
+    if founding_count >= 50:
+        flash("Sorry, all 50 founding spots have been claimed.", "error")
+        return redirect(url_for("landing.founding"))
+
+    # Already a founding member?
+    if current_user.is_founding_member:
+        flash("You're already a founding member!", "success")
+        return redirect(url_for("billing.index"))
+
+    try:
+        checkout_url = create_founding_checkout_session(
+            current_user,
+            success_url=url_for("billing.founding_success", _external=True),
+            cancel_url=url_for("landing.founding", _external=True),
+        )
+        return redirect(checkout_url)
+    except Exception:
+        logger.exception("Failed to create founding checkout session")
+        flash("Failed to start checkout. Please try again.", "error")
+        return redirect(url_for("landing.founding"))
+
+
+@bp.route("/founding-success")
+@login_required
+@account_required
+def founding_success():
+    flash("Welcome to the Founding 50! You now have lifetime Pro access.", "success")
+    return redirect(url_for("billing.index"))
 
 
 @bp.route("/success")

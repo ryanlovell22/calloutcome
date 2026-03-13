@@ -143,7 +143,7 @@ Send your partner a link to their proof dashboard alongside every invoice. Let t
 
 **Ignoring call quality data.** If your booking rate drops from 50% to 20%, something changed. Maybe your site is attracting the wrong audience. Maybe your partner is not answering promptly. AI scoring gives you the data to diagnose problems before they kill the relationship.
 
-**Scaling without automation.** Listening to 30 calls a week is manageable. Listening to 300 is a second job. Automate scoring before you scale, not after you are already drowning. [CallOutcome's free plan](/welcome) scores 10 calls per month — enough to validate the approach before committing.
+**Scaling without automation.** Listening to 30 calls a week is manageable. Listening to 300 is a second job. Automate scoring before you scale, not after you are already drowning. [CallOutcome's free plan](/welcome) scores 50 calls per month — enough to validate the approach before committing.
 
 **Choosing the wrong niche.** Not every service works for pay per call. If customers prefer to book online (think: hair salons, restaurants), phone leads will be sparse. Stick to high-urgency, phone-first trades.
 
@@ -151,6 +151,6 @@ Send your partner a link to their proof dashboard alongside every invoice. Let t
 
 Pay per call lead generation is a proven model. The operators who succeed long-term are the ones who solve the tracking and billing problem early — before disputes erode trust and partners walk away.
 
-If you are already running pay per call sites, connect your CallRail or Twilio account to [CallOutcome](/welcome) and start scoring calls today. The free plan handles 10 calls per month. If you are evaluating call tracking platforms, see our [CallRail vs CallOutcome comparison](/blog/callrail-vs-calloutcome) and [CallRail alternatives guide](/blog/callrail-alternatives). To see real numbers from a live pay per call operation, read our [rank-and-rent call scoring case study](/blog/case-study-rank-and-rent-call-scoring).
+If you are already running pay per call sites, connect your CallRail or Twilio account to [CallOutcome](/welcome) and start scoring calls today. The free plan handles 50 calls per month. If you are evaluating call tracking platforms, see our [CallRail vs CallOutcome comparison](/blog/callrail-vs-calloutcome) and [CallRail alternatives guide](/blog/callrail-alternatives). To see real numbers from a live pay per call operation, read our [rank-and-rent call scoring case study](/blog/case-study-rank-and-rent-call-scoring).
 
 Stop guessing which calls booked. Start proving it.

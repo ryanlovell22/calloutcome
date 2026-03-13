@@ -130,7 +130,7 @@ Additional costs for extra numbers and minutes beyond your plan limits.
 
 ### CallOutcome
 
-- **Free:** $0/month (10 calls, 1 tracking line)
+- **Free:** $0/month (50 calls, 1 tracking line)
 - **Starter:** $29/month (100 calls, unlimited lines)
 - **Pro:** $79/month (500 calls, dashboard share links)
 - **Agency:** $149/month (1,500 calls, unlimited everything)
@@ -177,6 +177,6 @@ CallRail and CallOutcome are complementary tools for lead gen operators:
 - **CallRail** answers: where did this call come from?
 - **CallOutcome** answers: did this call book a job?
 
-If you are already using CallRail, adding CallOutcome takes about 2 minutes and the [free plan](/welcome) lets you score 10 calls per month to see the value before committing.
+If you are already using CallRail, adding CallOutcome takes about 2 minutes and the [free plan](/welcome) lets you score 50 calls per month to see the value before committing.
 
 If you are evaluating both for the first time, start with CallRail (you need phone infrastructure first), then add CallOutcome once calls are flowing to start tracking conversions and building proof for your clients. And if you are running a [pay per call](/blog/pay-per-call-lead-generation) operation, this combination is especially important — your billing accuracy depends on it.

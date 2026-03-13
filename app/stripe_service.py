@@ -8,7 +8,7 @@ from flask import current_app
 logger = logging.getLogger(__name__)
 
 PLAN_LIMITS = {
-    "free": 10,
+    "free": 50,
     "starter": 100,
     "pro": 500,
     "agency": 1500,
@@ -49,6 +49,47 @@ def create_checkout_session(account, price_id, success_url, cancel_url):
     return session.url
 
 
+def create_founding_checkout_session(account, success_url, cancel_url):
+    """Create a Stripe Checkout session for the Founding 50 lifetime deal ($149 one-time)."""
+    s = _get_stripe()
+
+    # Create or reuse Stripe customer
+    if not account.stripe_customer_id:
+        customer = s.Customer.create(
+            email=account.email,
+            name=account.name,
+            metadata={"calloutcome_account_id": str(account.id)},
+        )
+        account.stripe_customer_id = customer.id
+        from .models import db
+        db.session.commit()
+
+    session = s.checkout.Session.create(
+        customer=account.stripe_customer_id,
+        payment_method_types=["card"],
+        line_items=[{
+            "price_data": {
+                "currency": "usd",
+                "product_data": {
+                    "name": "CallOutcome Founding 50 — Lifetime Pro",
+                    "description": "One-time payment. Pro plan (500 calls/mo) for life.",
+                },
+                "unit_amount": 14900,  # $149.00
+            },
+            "quantity": 1,
+        }],
+        mode="payment",
+        success_url=success_url,
+        cancel_url=cancel_url,
+        metadata={
+            "calloutcome_account_id": str(account.id),
+            "founding_member": "true",
+        },
+    )
+
+    return session.url
+
+
 def create_customer_portal_session(account, return_url):
     """Create a Stripe Customer Portal session for subscription management."""
     s = _get_stripe()
@@ -79,9 +120,23 @@ def handle_checkout_completed(session):
         return
 
     account.stripe_customer_id = session.get("customer")
-    account.stripe_subscription_id = session.get("subscription")
 
-    # Determine plan from the subscription
+    # Check if this is a Founding 50 one-time payment
+    is_founding = session.get("metadata", {}).get("founding_member") == "true"
+    if is_founding:
+        account.stripe_plan = "pro"
+        account.plan_calls_limit = PLAN_LIMITS["pro"]
+        account.is_founding_member = True
+        account.subscription_status = "active"
+        # Assign founding member number
+        current_count = Account.query.filter_by(is_founding_member=True).count()
+        account.founding_member_number = current_count  # this account is already True
+        db.session.commit()
+        logger.info("Account %s became founding member #%s", account_id, account.founding_member_number)
+        return
+
+    # Regular subscription checkout
+    account.stripe_subscription_id = session.get("subscription")
     _update_plan_from_subscription(account, session.get("subscription"))
 
     db.session.commit()
@@ -108,13 +163,18 @@ def handle_subscription_updated(subscription):
 
 
 def handle_subscription_deleted(subscription):
-    """Handle subscription cancellation. Downgrade to free."""
+    """Handle subscription cancellation. Downgrade to free (unless founding member)."""
     from .models import db, Account
 
     customer_id = subscription.get("customer")
     account = Account.query.filter_by(stripe_customer_id=customer_id).first()
     if not account:
         logger.warning("No account found for Stripe customer %s", customer_id)
+        return
+
+    # Founding members keep Pro forever — don't downgrade
+    if account.is_founding_member:
+        logger.info("Account %s is a founding member — skipping downgrade", account.id)
         return
 
     account.stripe_plan = "free"

@@ -67,7 +67,7 @@ The app factory (`app/__init__.py:create_app()`) registers 11 blueprints: auth, 
 
 ### Billing
 
-Stripe Checkout + Customer Portal. Tiers: Free (10 calls), Starter ($29/100), Pro ($79/500), Agency ($149/1500). Usage tracked via `plan_calls_used` / `plan_calls_limit` on Account. Calls at limit get `status="limit_reached"`.
+Stripe Checkout + Customer Portal. Tiers: Free (50 calls), Starter ($29/100), Pro ($79/500), Agency ($149/1500). Usage tracked via `plan_calls_used` / `plan_calls_limit` on Account. Calls at limit get `status="limit_reached"`.
 
 ## Environment Variables
 
