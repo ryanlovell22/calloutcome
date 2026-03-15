@@ -115,7 +115,8 @@ def index():
         callrail_webhook_url = url_for("webhooks.callrail_callback", _external=True)
 
     import pytz
-    australian_timezones = [tz for tz in sorted(pytz.all_timezones) if tz.startswith('Australia/')]
+    # Show common timezones: user's current tz first, then all pytz timezones
+    all_timezones = sorted(pytz.common_timezones)
 
     # Data for Upload section
     from ..models import TrackingLine
@@ -133,7 +134,7 @@ def index():
         callrail_account_name=callrail_account_name,
         callrail_webhook_url=callrail_webhook_url,
         masked_callrail_key=masked_callrail_key,
-        timezones=australian_timezones,
+        timezones=all_timezones,
         current_timezone=account.timezone or "Australia/Adelaide",
         account=account,
         lines=lines,

@@ -69,6 +69,13 @@ def signup():
         account = Account(name=name, email=email, is_admin=is_admin)
         account.set_password(password)
 
+        # Auto-detect timezone from browser
+        detected_tz = request.form.get("timezone", "").strip()
+        if detected_tz:
+            import pytz
+            if detected_tz in pytz.all_timezones:
+                account.timezone = detected_tz
+
         # Store acquisition source — try session first, fall back to hidden form fields
         utm_data = session.pop('utm_data', None)
         if not utm_data:

@@ -20,6 +20,7 @@
         <input type="hidden" name="{{ key }}" value="{{ value }}">
         {% endfor %}
         {% endif %}
+        <input type="hidden" name="timezone" id="tz-detect" value="">
 
         <button type="submit">Sign up</button>
     </form>
@@ -29,4 +30,7 @@
     </p>
     <p><small>Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></small></p>
 </article>
+<script>
+try { document.getElementById('tz-detect').value = Intl.DateTimeFormat().resolvedOptions().timeZone; } catch(e) {}
+</script>
 {% endblock %}
