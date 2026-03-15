@@ -1,6 +1,6 @@
 from urllib.parse import urlencode
 
-from flask import render_template, request
+from flask import redirect, render_template, request
 from sqlalchemy import func
 
 from . import bp
@@ -25,12 +25,8 @@ def _get_stats():
 
 @bp.route("/welcome")
 def landing():
-    total_calls, jobs_booked = _get_stats()
-    return render_template(
-        "landing/index.html",
-        total_calls=total_calls,
-        jobs_booked=jobs_booked,
-    )
+    """Redirect /welcome to / (301) — root is the canonical URL now."""
+    return redirect('/', code=301)
 
 
 @bp.route("/try")

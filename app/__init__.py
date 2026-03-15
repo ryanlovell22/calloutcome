@@ -4,12 +4,12 @@ from collections import Counter
 from datetime import datetime, timezone
 
 from authlib.integrations.flask_client import OAuth
-from flask import Flask, redirect, render_template, Response, abort
+from flask import Flask, redirect, render_template, Response, abort, url_for
 from flask_login import LoginManager, login_required, current_user
 from flask_migrate import Migrate
 
 from .config import Config
-from .models import db, Account
+from .models import db, Account, Call
 from .extensions import limiter
 
 login_manager = LoginManager()
@@ -104,7 +104,23 @@ def create_app():
 
     @app.route('/')
     def index():
-        return redirect('/welcome')
+        """Serve landing page at root URL (SEO: canonical URL must return content, not redirect)."""
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard.index'))
+        from sqlalchemy import func as sqlfunc
+        total_calls = db.session.query(sqlfunc.count(Call.id)).filter(
+            Call.classification.isnot(None)
+        ).scalar() or 0
+        jobs_booked = db.session.query(sqlfunc.count(Call.id)).filter(
+            Call.classification == "JOB_BOOKED"
+        ).scalar() or 0
+        total_calls_display = max((total_calls // 10) * 10, 500)
+        jobs_booked_display = max((jobs_booked // 10) * 10, 100)
+        return render_template(
+            'landing/index.html',
+            total_calls=total_calls_display,
+            jobs_booked=jobs_booked_display,
+        )
 
     @app.errorhandler(404)
     def not_found(e):
@@ -154,7 +170,7 @@ def create_app():
     def sitemap_xml():
         urls = []
         urls.append({
-            'loc': 'https://calloutcome.com/welcome',
+            'loc': 'https://calloutcome.com/',
             'changefreq': 'weekly',
             'priority': '1.0',
         })
