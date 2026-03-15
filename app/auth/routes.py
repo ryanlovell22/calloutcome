@@ -8,7 +8,6 @@ from flask_login import login_user, logout_user, current_user
 from ..models import db, Account
 from ..email_service import send_email
 from ..extensions import limiter
-from ..utm_utils import capture_utm
 from . import bp
 
 
@@ -46,32 +45,38 @@ def signup():
             return redirect(url_for("onboarding.wizard"))
         return redirect(url_for("dashboard.index"))
 
-    # Capture UTM params on page load
-    capture_utm()
-
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
+        # Preserve UTM data across validation errors
+        post_utm = session.get('utm_data', {})
+
         if not name or not email or not password:
             flash("All fields are required.", "error")
-            return render_template("auth/signup.html")
+            return render_template("auth/signup.html", utm_data=post_utm)
 
         if len(password) < 8:
             flash("Password must be at least 8 characters.", "error")
-            return render_template("auth/signup.html")
+            return render_template("auth/signup.html", utm_data=post_utm)
 
         if Account.query.filter_by(email=email).first():
             flash("An account with that email already exists.", "error")
-            return render_template("auth/signup.html")
+            return render_template("auth/signup.html", utm_data=post_utm)
 
         is_admin = email in current_app.config.get("ADMIN_EMAILS", [])
         account = Account(name=name, email=email, is_admin=is_admin)
         account.set_password(password)
 
-        # Store acquisition source from UTM params
+        # Store acquisition source — try session first, fall back to hidden form fields
         utm_data = session.pop('utm_data', None)
+        if not utm_data:
+            # Fallback: read from hidden form fields (covers lost session cookies)
+            from ..utm_utils import UTM_PARAMS
+            form_utm = {p: request.form.get(p, '') for p in UTM_PARAMS if request.form.get(p)}
+            if form_utm:
+                utm_data = form_utm
         if utm_data:
             account.signup_source = json.dumps(utm_data)
 
@@ -82,7 +87,9 @@ def signup():
         flash("Account created successfully.", "success")
         return redirect(url_for("onboarding.wizard"))
 
-    return render_template("auth/signup.html")
+    # Pass UTM data to template for hidden form fields (fallback if session is lost)
+    utm_data = session.get('utm_data', {})
+    return render_template("auth/signup.html", utm_data=utm_data)
 
 
 @bp.route("/logout")

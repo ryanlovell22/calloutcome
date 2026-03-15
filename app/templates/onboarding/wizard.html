@@ -166,8 +166,8 @@ if (typeof rdt === 'function') {
 
     <article style="margin-bottom: 1.5rem;">
         <p><strong>Plan:</strong> {{ (account.stripe_plan or 'free') | capitalize }}</p>
-        <p><strong>Calls remaining:</strong> {{ (account.plan_calls_limit or 10) - (account.plan_calls_used or 0) }} of {{ account.plan_calls_limit or 10 }}</p>
-        <progress value="{{ account.plan_calls_used or 0 }}" max="{{ account.plan_calls_limit or 10 }}"></progress>
+        <p><strong>Calls remaining:</strong> {{ (account.plan_calls_limit or 50) - (account.plan_calls_used or 0) }} of {{ account.plan_calls_limit or 50 }}</p>
+        <progress value="{{ account.plan_calls_used or 0 }}" max="{{ account.plan_calls_limit or 50 }}"></progress>
     </article>
 
     <label>How far back should we look?</label>

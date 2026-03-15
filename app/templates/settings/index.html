@@ -178,8 +178,8 @@
     {% if account.is_admin %}
     <p><strong>Unlimited</strong> (admin account)</p>
     {% else %}
-    <p>{{ account.plan_calls_used or 0 }} of {{ account.plan_calls_limit or 10 }} calls used</p>
-    <progress value="{{ account.plan_calls_used or 0 }}" max="{{ account.plan_calls_limit or 10 }}"></progress>
+    <p>{{ account.plan_calls_used or 0 }} of {{ account.plan_calls_limit or 50 }} calls used</p>
+    <progress value="{{ account.plan_calls_used or 0 }}" max="{{ account.plan_calls_limit or 50 }}"></progress>
 
     {% if account.plan_calls_used and account.plan_calls_limit and account.plan_calls_used >= account.plan_calls_limit %}
     <p style="color: var(--pico-del-color);"><strong>You've reached your call limit.</strong> Upgrade to continue scoring calls.</p>

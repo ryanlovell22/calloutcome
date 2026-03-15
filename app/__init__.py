@@ -82,6 +82,14 @@ def create_app():
     from .shared import bp as shared_bp
     app.register_blueprint(shared_bp)
 
+    # Global UTM capture — runs on every request so UTMs are captured
+    # regardless of which page the visitor lands on
+    from .utm_utils import capture_utm
+
+    @app.before_request
+    def global_utm_capture():
+        capture_utm()
+
     @app.route('/')
     def index():
         return redirect('/welcome')

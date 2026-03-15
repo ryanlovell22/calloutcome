@@ -5,7 +5,7 @@ from sqlalchemy import func
 
 from . import bp
 from ..models import db, Call, Account
-from ..utm_utils import capture_utm, UTM_PARAMS
+from ..utm_utils import UTM_PARAMS
 
 
 def _get_stats():
@@ -25,7 +25,6 @@ def _get_stats():
 
 @bp.route("/welcome")
 def landing():
-    capture_utm()
     total_calls, jobs_booked = _get_stats()
     return render_template(
         "landing/index.html",
@@ -36,7 +35,6 @@ def landing():
 
 @bp.route("/try")
 def try_page():
-    capture_utm()
     total_calls, jobs_booked = _get_stats()
 
     # Pass UTM query string so CTA links preserve params
@@ -57,7 +55,6 @@ def try_page():
 
 @bp.route("/founding")
 def founding():
-    capture_utm()
     founding_count = Account.query.filter_by(is_founding_member=True).count()
     spots_remaining = max(50 - founding_count, 0)
     return render_template(
@@ -68,5 +65,4 @@ def founding():
 
 @bp.route("/calculator")
 def calculator():
-    capture_utm()
     return render_template("landing/calculator.html")

@@ -253,7 +253,7 @@ def backsync():
         source_name=source_name,
         plan_name=account.stripe_plan or "free",
         calls_used=account.plan_calls_used or 0,
-        calls_limit=account.plan_calls_limit or 10,
+        calls_limit=account.plan_calls_limit or 50,
         is_admin=account.is_admin,
         active_page="settings",
     )

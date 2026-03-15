@@ -230,7 +230,7 @@ def _update_plan_from_subscription(account, subscription_id):
 
         plan = price_map.get(price_id, "starter")
         account.stripe_plan = plan
-        account.plan_calls_limit = PLAN_LIMITS.get(plan, 10)
+        account.plan_calls_limit = PLAN_LIMITS.get(plan, 50)
         account.subscription_status = sub.get("status", "active")
 
     except Exception:

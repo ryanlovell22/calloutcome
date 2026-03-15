@@ -15,6 +15,12 @@
         <input type="password" id="password" name="password" required minlength="8" autocomplete="new-password">
         <small>Minimum 8 characters</small>
 
+        {% if utm_data %}
+        {% for key, value in utm_data.items() %}
+        <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endfor %}
+        {% endif %}
+
         <button type="submit">Sign up</button>
     </form>
     <p style="text-align: center; margin-top: 1.25rem; font-size: 0.85rem; color: var(--pico-muted-color); line-height: 1.6;">
