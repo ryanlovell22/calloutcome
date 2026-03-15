@@ -12,7 +12,7 @@ class Account(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=True)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     twilio_account_sid = db.Column(db.String(255))
     twilio_auth_token_encrypted = db.Column(db.Text)
@@ -42,6 +42,10 @@ class Account(UserMixin, db.Model):
     is_founding_member = db.Column(db.Boolean, default=False)
     founding_member_number = db.Column(db.Integer, nullable=True)
 
+    # Google OAuth
+    google_id = db.Column(db.String(255), unique=True, nullable=True)
+    auth_provider = db.Column(db.String(20), default="email")  # "email", "google", or "both"
+
     # Acquisition tracking
     signup_source = db.Column(db.String(500))  # JSON: {"utm_source": ..., "utm_medium": ..., etc.}
 
@@ -64,6 +68,8 @@ class Account(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password, method="pbkdf2:sha256")
 
     def check_password(self, password):
+        if not self.password_hash:
+            return False
         return check_password_hash(self.password_hash, password)
 
     @property

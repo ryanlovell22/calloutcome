@@ -34,6 +34,10 @@ class Config:
     STRIPE_PRICE_PRO = os.environ.get("STRIPE_PRICE_PRO")
     STRIPE_PRICE_AGENCY = os.environ.get("STRIPE_PRICE_AGENCY")
 
+    # Google OAuth
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
     # Admin emails (auto-flagged as is_admin on signup)
     ADMIN_EMAILS = [
         e.strip().lower()

@@ -11,6 +11,87 @@ from ..extensions import limiter
 from . import bp
 
 
+@bp.route("/google")
+def google_login():
+    from .. import oauth
+    if not hasattr(oauth, 'google'):
+        flash("Google sign-in is not configured.", "error")
+        return redirect(url_for("auth.login"))
+    redirect_uri = url_for("auth.google_callback", _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@bp.route("/google/callback")
+def google_callback():
+    from .. import oauth
+    if not hasattr(oauth, 'google'):
+        flash("Google sign-in is not configured.", "error")
+        return redirect(url_for("auth.login"))
+
+    try:
+        token = oauth.google.authorize_access_token()
+    except Exception:
+        flash("Google sign-in was cancelled or failed.", "error")
+        return redirect(url_for("auth.login"))
+
+    userinfo = token.get('userinfo')
+    if not userinfo:
+        flash("Could not retrieve your Google account info.", "error")
+        return redirect(url_for("auth.login"))
+
+    google_id = userinfo['sub']
+    email = userinfo['email'].strip().lower()
+    name = userinfo.get('name', email.split('@')[0])
+
+    # 1. Find by google_id (returning Google user)
+    account = Account.query.filter_by(google_id=google_id).first()
+    if account:
+        login_user(account)
+        if not account.onboarding_completed:
+            return redirect(url_for("onboarding.wizard"))
+        return redirect(url_for("dashboard.index"))
+
+    # 2. Find by email (existing email/password user → link Google)
+    account = Account.query.filter_by(email=email).first()
+    if account:
+        account.google_id = google_id
+        account.auth_provider = "both"
+        db.session.commit()
+        login_user(account)
+        flash("Google account linked successfully.", "success")
+        if not account.onboarding_completed:
+            return redirect(url_for("onboarding.wizard"))
+        return redirect(url_for("dashboard.index"))
+
+    # 3. New user — create account via Google
+    is_admin = email in current_app.config.get("ADMIN_EMAILS", [])
+    account = Account(
+        name=name,
+        email=email,
+        google_id=google_id,
+        auth_provider="google",
+        is_admin=is_admin,
+    )
+
+    # Auto-detect timezone from cookie (set by JS on login/signup pages)
+    detected_tz = request.cookies.get("tz_detect", "").strip()
+    if detected_tz:
+        import pytz
+        if detected_tz in pytz.all_timezones:
+            account.timezone = detected_tz
+
+    # Capture UTM data from session
+    utm_data = session.pop('utm_data', None)
+    if utm_data:
+        account.signup_source = json.dumps(utm_data)
+
+    db.session.add(account)
+    db.session.commit()
+    login_user(account)
+    flash("Account created successfully.", "success")
+    return redirect(url_for("onboarding.wizard"))
+
+
 @bp.route("/login", methods=["GET", "POST"])
 @limiter.limit("10/minute")
 def login():
@@ -118,24 +199,39 @@ def forgot_password():
 
         account = Account.query.filter_by(email=email).first()
         if account:
-            token = secrets.token_urlsafe(32)
-            account.password_reset_token = token
-            account.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
-            db.session.commit()
+            # Google-only accounts have no password to reset
+            if account.auth_provider == "google" and not account.password_hash:
+                send_email(
+                    to=account.email,
+                    subject="CallOutcome sign-in help",
+                    html=f"""
+                    <h2>Sign-in Help</h2>
+                    <p>Hi {account.name},</p>
+                    <p>Your CallOutcome account uses Google sign-in, so there's no password to reset.</p>
+                    <p>To log in, visit <a href="https://calloutcome.com/login">calloutcome.com/login</a> and click <strong>"Sign in with Google"</strong>.</p>
+                    <p>If you didn't request this, you can safely ignore this email.</p>
+                    <p>— CallOutcome</p>
+                    """,
+                )
+            else:
+                token = secrets.token_urlsafe(32)
+                account.password_reset_token = token
+                account.password_reset_expires = datetime.now(timezone.utc) + timedelta(hours=1)
+                db.session.commit()
 
-            reset_url = url_for("auth.reset_password", token=token, _external=True)
-            send_email(
-                to=account.email,
-                subject="Reset your CallOutcome password",
-                html=f"""
-                <h2>Password Reset</h2>
-                <p>Hi {account.name},</p>
-                <p>Click the link below to reset your password. This link expires in 1 hour.</p>
-                <p><a href="{reset_url}" style="display:inline-block;padding:12px 24px;background:#1095c1;color:white;text-decoration:none;border-radius:6px;">Reset Password</a></p>
-                <p>If you didn't request this, you can safely ignore this email.</p>
-                <p>— CallOutcome</p>
-                """,
-            )
+                reset_url = url_for("auth.reset_password", token=token, _external=True)
+                send_email(
+                    to=account.email,
+                    subject="Reset your CallOutcome password",
+                    html=f"""
+                    <h2>Password Reset</h2>
+                    <p>Hi {account.name},</p>
+                    <p>Click the link below to reset your password. This link expires in 1 hour.</p>
+                    <p><a href="{reset_url}" style="display:inline-block;padding:12px 24px;background:#1095c1;color:white;text-decoration:none;border-radius:6px;">Reset Password</a></p>
+                    <p>If you didn't request this, you can safely ignore this email.</p>
+                    <p>— CallOutcome</p>
+                    """,
+                )
 
         return redirect(url_for("auth.forgot_password"))
 

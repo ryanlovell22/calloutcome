@@ -3,6 +3,7 @@ import os
 from collections import Counter
 from datetime import datetime, timezone
 
+from authlib.integrations.flask_client import OAuth
 from flask import Flask, redirect, render_template, Response, abort
 from flask_login import LoginManager, login_required, current_user
 from flask_migrate import Migrate
@@ -14,6 +15,7 @@ from .extensions import limiter
 login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 migrate = Migrate()
+oauth = OAuth()
 
 
 @login_manager.user_loader
@@ -35,6 +37,16 @@ def create_app():
     login_manager.init_app(app)
     migrate.init_app(app, db)
     limiter.init_app(app)
+    oauth.init_app(app)
+
+    if app.config.get('GOOGLE_CLIENT_ID'):
+        oauth.register(
+            name='google',
+            client_id=app.config['GOOGLE_CLIENT_ID'],
+            client_secret=app.config['GOOGLE_CLIENT_SECRET'],
+            server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+            client_kwargs={'scope': 'openid email profile'},
+        )
 
     import pytz
 
