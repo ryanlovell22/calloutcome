@@ -1,3 +1,5 @@
+import csv
+import io
 import logging
 from datetime import datetime, timedelta, timezone
 
@@ -34,7 +36,7 @@ def public_dashboard(share_token):
     else:
         query = query.filter(False)
 
-    # Date filtering: fixed range (date_from/date_to) takes priority, then rolling window
+    # Timezone setup
     try:
         account = db.session.get(Account, dashboard.account_id)
         tz_name = account.timezone if account else 'Australia/Adelaide'
@@ -42,38 +44,74 @@ def public_dashboard(share_token):
     except Exception:
         local_tz = pytz.timezone('Australia/Adelaide')
 
-    if dashboard.date_from and dashboard.date_to:
-        # Fixed date range
-        window_days = -1  # sentinel for label logic
-        dt_from = local_tz.localize(datetime(dashboard.date_from.year, dashboard.date_from.month, dashboard.date_from.day))
-        dt_from_utc = dt_from.astimezone(timezone.utc).replace(tzinfo=None)
-        query = query.filter(Call.call_date >= dt_from_utc)
+    now_local = datetime.now(timezone.utc).astimezone(local_tz)
+    today_local = now_local.date()
 
+    # Date filtering: query params override dashboard config
+    period = request.args.get("period")
+    qs_date_from = request.args.get("date_from")
+    qs_date_to = request.args.get("date_to")
+    active_period = None
+
+    if period == "this_week":
+        # Monday of current week to today
+        active_period = "this_week"
+        start_date = today_local - timedelta(days=today_local.weekday())  # Monday
+        end_date = today_local + timedelta(days=1)
+        window_days = -1
+    elif period == "last_week":
+        # Previous Monday to Sunday
+        active_period = "last_week"
+        this_monday = today_local - timedelta(days=today_local.weekday())
+        start_date = this_monday - timedelta(days=7)
+        end_date = this_monday
+        window_days = -1
+    elif qs_date_from and qs_date_to:
+        # Custom date range from query string
+        active_period = "custom"
+        try:
+            start_date = datetime.strptime(qs_date_from, "%Y-%m-%d").date()
+            end_date = datetime.strptime(qs_date_to, "%Y-%m-%d").date() + timedelta(days=1)
+            window_days = -1
+        except ValueError:
+            start_date = today_local - timedelta(days=30)
+            end_date = today_local + timedelta(days=1)
+            window_days = 30
+    elif dashboard.date_from and dashboard.date_to:
+        # Fixed date range from dashboard config
+        start_date = dashboard.date_from
         end_date = dashboard.date_to + timedelta(days=1)
-        dt_to = local_tz.localize(datetime(end_date.year, end_date.month, end_date.day))
-        dt_to_utc = dt_to.astimezone(timezone.utc).replace(tzinfo=None)
-        query = query.filter(Call.call_date < dt_to_utc)
+        window_days = -1
     else:
-        # Rolling window: 0 = realtime (no filtering), positive = rolling, NULL defaults to 30
+        # Rolling window: 0 = all-time, positive = rolling, NULL defaults to 30
         window_days = dashboard.date_window_days
         if window_days is None:
             window_days = 30
-
         if window_days > 0:
-            now_local = datetime.now(timezone.utc).astimezone(local_tz)
-            today_local = now_local.date()
             start_date = today_local - timedelta(days=window_days)
+            end_date = today_local + timedelta(days=1)
+        else:
+            start_date = None
+            end_date = None
 
+    # Apply date filters to query
+    if window_days != 0 or (start_date and end_date):
+        if start_date and end_date:
             dt_from = local_tz.localize(datetime(start_date.year, start_date.month, start_date.day))
             dt_from_utc = dt_from.astimezone(timezone.utc).replace(tzinfo=None)
             query = query.filter(Call.call_date >= dt_from_utc)
 
-            end_date = today_local + timedelta(days=1)
             dt_to = local_tz.localize(datetime(end_date.year, end_date.month, end_date.day))
             dt_to_utc = dt_to.astimezone(timezone.utc).replace(tzinfo=None)
             query = query.filter(Call.call_date < dt_to_utc)
 
-    # Stats
+    # Classification filter
+    classification = request.args.get("classification")
+    active_classification = None
+    if classification in ("JOB_BOOKED", "NOT_BOOKED"):
+        active_classification = classification
+
+    # Stats (computed before classification filter so totals reflect all calls)
     total = query.count()
     booked = query.filter(Call.classification == "JOB_BOOKED").count()
     not_booked = query.filter(Call.classification == "NOT_BOOKED").count()
@@ -143,15 +181,28 @@ def public_dashboard(share_token):
 
     total_value = float(booking_value + call_value + voicemail_value + qualified_value + weekly_min_value)
 
-    # Show answered calls in table (exclude missed)
-    answered_query = query.filter(
-        Call.call_outcome != "missed",
-        Call.status == "completed",
+    # Apply classification filter to table query
+    table_query = query
+    if active_classification:
+        table_query = table_query.filter(Call.classification == active_classification)
+
+    # Pagination
+    page = request.args.get("page", 1, type=int)
+    pagination = table_query.order_by(Call.call_date.desc()).paginate(
+        page=page, per_page=50, error_out=False
     )
-    calls = answered_query.order_by(Call.call_date.desc()).all()
+    calls = pagination.items
 
     # Build a human-readable window label
-    if window_days == -1:
+    if active_period == "this_week":
+        window_label = f"This week ({start_date.strftime('%d %b')} — {today_local.strftime('%d %b %Y')})"
+    elif active_period == "last_week":
+        last_sun = end_date - timedelta(days=1)
+        window_label = f"Last week ({start_date.strftime('%d %b')} — {last_sun.strftime('%d %b %Y')})"
+    elif active_period == "custom":
+        actual_end = end_date - timedelta(days=1)
+        window_label = f"{start_date.strftime('%d %b %Y')} — {actual_end.strftime('%d %b %Y')}"
+    elif window_days == -1:
         window_label = f"{dashboard.date_from.strftime('%d %b %Y')} — {dashboard.date_to.strftime('%d %b %Y')}"
     elif window_days == 0:
         window_label = "All time (realtime)"
@@ -168,13 +219,170 @@ def public_dashboard(share_token):
     else:
         window_label = f"Last {window_days} days"
 
+    # Build filter dict for pagination/export links
+    filters = {}
+    if period:
+        filters["period"] = period
+    if qs_date_from:
+        filters["date_from"] = qs_date_from
+    if qs_date_to:
+        filters["date_to"] = qs_date_to
+    if active_classification:
+        filters["classification"] = active_classification
+
     return render_template(
         "shared/dashboard.html",
         dashboard=dashboard,
         calls=calls,
-        stats={"total": total, "booked": booked, "not_booked": not_booked, "missed": missed, "rate": rate, "total_value": total_value},
+        pagination=pagination,
+        stats={
+            "total": total, "booked": booked, "not_booked": not_booked,
+            "missed": missed, "rate": rate, "total_value": total_value,
+            "booking_value": float(booking_value), "call_value": float(call_value),
+            "voicemail_value": float(voicemail_value), "qualified_value": float(qualified_value),
+            "weekly_min_value": float(weekly_min_value),
+        },
         window_label=window_label,
         share_token=share_token,
+        local_tz=local_tz,
+        active_period=active_period,
+        active_classification=active_classification,
+        filters=filters,
+        qs_date_from=qs_date_from or "",
+        qs_date_to=qs_date_to or "",
+    )
+
+
+@bp.route("/proof/<share_token>/export")
+def public_dashboard_export(share_token):
+    """CSV export for shared proof dashboard."""
+    dashboard = SharedDashboard.query.filter_by(
+        share_token=share_token, active=True
+    ).first_or_404()
+
+    # Password protection check
+    if dashboard.password_hash:
+        session_key = f"proof_auth_{share_token}"
+        if not session.get(session_key):
+            return redirect(url_for("shared.public_dashboard", share_token=share_token))
+
+    # Build call query scoped to the shared link's tracking lines
+    query = Call.query.filter_by(account_id=dashboard.account_id)
+    line_ids = [l.id for l in dashboard.tracking_lines]
+    if line_ids:
+        query = query.filter(Call.tracking_line_id.in_(line_ids))
+    else:
+        query = query.filter(False)
+
+    # Timezone setup
+    try:
+        account = db.session.get(Account, dashboard.account_id)
+        tz_name = account.timezone if account else 'Australia/Adelaide'
+        local_tz = pytz.timezone(tz_name)
+    except Exception:
+        local_tz = pytz.timezone('Australia/Adelaide')
+
+    now_local = datetime.now(timezone.utc).astimezone(local_tz)
+    today_local = now_local.date()
+
+    # Date filtering (same logic as main route)
+    period = request.args.get("period")
+    qs_date_from = request.args.get("date_from")
+    qs_date_to = request.args.get("date_to")
+
+    start_date = None
+    end_date = None
+    window_days = 0
+
+    if period == "this_week":
+        start_date = today_local - timedelta(days=today_local.weekday())
+        end_date = today_local + timedelta(days=1)
+        window_days = -1
+    elif period == "last_week":
+        this_monday = today_local - timedelta(days=today_local.weekday())
+        start_date = this_monday - timedelta(days=7)
+        end_date = this_monday
+        window_days = -1
+    elif qs_date_from and qs_date_to:
+        try:
+            start_date = datetime.strptime(qs_date_from, "%Y-%m-%d").date()
+            end_date = datetime.strptime(qs_date_to, "%Y-%m-%d").date() + timedelta(days=1)
+            window_days = -1
+        except ValueError:
+            start_date = today_local - timedelta(days=30)
+            end_date = today_local + timedelta(days=1)
+            window_days = 30
+    elif dashboard.date_from and dashboard.date_to:
+        start_date = dashboard.date_from
+        end_date = dashboard.date_to + timedelta(days=1)
+        window_days = -1
+    else:
+        window_days = dashboard.date_window_days
+        if window_days is None:
+            window_days = 30
+        if window_days > 0:
+            start_date = today_local - timedelta(days=window_days)
+            end_date = today_local + timedelta(days=1)
+
+    if window_days != 0 or (start_date and end_date):
+        if start_date and end_date:
+            dt_from = local_tz.localize(datetime(start_date.year, start_date.month, start_date.day))
+            dt_from_utc = dt_from.astimezone(timezone.utc).replace(tzinfo=None)
+            query = query.filter(Call.call_date >= dt_from_utc)
+            dt_to = local_tz.localize(datetime(end_date.year, end_date.month, end_date.day))
+            dt_to_utc = dt_to.astimezone(timezone.utc).replace(tzinfo=None)
+            query = query.filter(Call.call_date < dt_to_utc)
+
+    # Classification filter
+    classification = request.args.get("classification")
+    if classification in ("JOB_BOOKED", "NOT_BOOKED"):
+        query = query.filter(Call.classification == classification)
+
+    calls = query.order_by(Call.call_date.desc()).all()
+
+    # Build CSV
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["Date", "Line", "Caller", "Customer", "Duration", "Classification", "Booking Time", "Summary"])
+
+    for call in calls:
+        # Convert date to local timezone
+        if call.call_date:
+            utc_dt = call.call_date.replace(tzinfo=timezone.utc)
+            local_dt = utc_dt.astimezone(local_tz)
+            date_str = local_dt.strftime("%-d %b %Y %-I:%M %p")
+        else:
+            date_str = ""
+
+        duration = f"{call.call_duration // 60}:{call.call_duration % 60:02d}" if call.call_duration else ""
+
+        if call.call_outcome == "missed":
+            cls = "Missed"
+        elif call.classification == "JOB_BOOKED":
+            cls = "Booked"
+        elif call.classification == "NOT_BOOKED":
+            cls = "Not Booked"
+        elif call.classification == "VOICEMAIL":
+            cls = "Voicemail"
+        else:
+            cls = call.status or ""
+
+        writer.writerow([
+            date_str,
+            call.tracking_line.label if call.tracking_line else "",
+            call.caller_number or "",
+            call.customer_name or "",
+            duration,
+            cls,
+            call.booking_time or "",
+            call.summary or "",
+        ])
+
+    csv_data = '\ufeff' + output.getvalue()
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=calloutcome_export.csv"},
     )
 
 
@@ -218,11 +426,20 @@ def public_call_detail(share_token, call_id):
     if call.tracking_line_id not in shared_line_ids:
         abort(404)
 
+    # Timezone for display
+    try:
+        account = db.session.get(Account, dashboard.account_id)
+        tz_name = account.timezone if account else 'Australia/Adelaide'
+        local_tz = pytz.timezone(tz_name)
+    except Exception:
+        local_tz = pytz.timezone('Australia/Adelaide')
+
     return render_template(
         "shared/call_detail.html",
         dashboard=dashboard,
         call=call,
         share_token=share_token,
+        local_tz=local_tz,
     )
 
 

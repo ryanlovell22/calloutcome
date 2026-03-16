@@ -6,6 +6,31 @@
     <title>Call Proof Dashboard — CallOutcome</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .date-filter-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end; margin-bottom: 1.5rem; }
+        .date-filter-bar a, .date-filter-bar button {
+            padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.85rem;
+            text-decoration: none; border: 1px solid var(--pico-muted-border-color);
+            background: transparent; color: var(--pico-color); cursor: pointer;
+        }
+        .date-filter-bar a:hover, .date-filter-bar button:hover { border-color: var(--pico-primary); color: var(--pico-primary); }
+        .date-filter-bar a.active, .date-filter-bar button.active {
+            background: var(--pico-primary); color: #fff; border-color: var(--pico-primary);
+        }
+        .date-filter-bar .custom-dates { display: flex; gap: 0.4rem; align-items: flex-end; margin-left: auto; }
+        .date-filter-bar .custom-dates input[type="date"] {
+            padding: 0.3rem 0.5rem; font-size: 0.85rem; margin-bottom: 0;
+            border: 1px solid var(--pico-muted-border-color); border-radius: 6px;
+            background: transparent; color: var(--pico-color);
+        }
+        .date-filter-bar .custom-dates button { white-space: nowrap; }
+        .filter-separator { width: 1px; height: 1.5rem; background: var(--pico-muted-border-color); align-self: center; }
+        @media (max-width: 600px) {
+            .date-filter-bar { flex-direction: column; align-items: stretch; }
+            .date-filter-bar .custom-dates { margin-left: 0; flex-wrap: wrap; }
+            .filter-separator { display: none; }
+        }
+    </style>
 </head>
 <body>
     <header class="container">
@@ -16,6 +41,24 @@
     </header>
 
     <main class="container">
+        <!-- Date Filter Bar -->
+        <div class="date-filter-bar">
+            <a href="/proof/{{ share_token }}{% if active_classification %}?classification={{ active_classification }}{% endif %}" class="{% if not active_period %}active{% endif %}">Default</a>
+            <a href="/proof/{{ share_token }}?period=this_week{% if active_classification %}&classification={{ active_classification }}{% endif %}" class="{% if active_period == 'this_week' %}active{% endif %}">This Week</a>
+            <a href="/proof/{{ share_token }}?period=last_week{% if active_classification %}&classification={{ active_classification }}{% endif %}" class="{% if active_period == 'last_week' %}active{% endif %}">Last Week</a>
+            <div class="filter-separator"></div>
+            <a href="/proof/{{ share_token }}{% if active_period == 'this_week' %}?period=this_week{% elif active_period == 'last_week' %}?period=last_week{% elif active_period == 'custom' %}?date_from={{ qs_date_from }}&date_to={{ qs_date_to }}{% endif %}" class="{% if not active_classification %}active{% endif %}">All</a>
+            <a href="/proof/{{ share_token }}?classification=JOB_BOOKED{% if active_period == 'this_week' %}&period=this_week{% elif active_period == 'last_week' %}&period=last_week{% elif active_period == 'custom' %}&date_from={{ qs_date_from }}&date_to={{ qs_date_to }}{% endif %}" class="{% if active_classification == 'JOB_BOOKED' %}active{% endif %}">Booked</a>
+            <a href="/proof/{{ share_token }}?classification=NOT_BOOKED{% if active_period == 'this_week' %}&period=this_week{% elif active_period == 'last_week' %}&period=last_week{% elif active_period == 'custom' %}&date_from={{ qs_date_from }}&date_to={{ qs_date_to }}{% endif %}" class="{% if active_classification == 'NOT_BOOKED' %}active{% endif %}">Not Booked</a>
+            <form class="custom-dates" method="get" action="/proof/{{ share_token }}">
+                {% if active_classification %}<input type="hidden" name="classification" value="{{ active_classification }}">{% endif %}
+                <input type="date" name="date_from" value="{{ qs_date_from }}" required>
+                <span style="color: var(--pico-muted-color); font-size: 0.85rem;">to</span>
+                <input type="date" name="date_to" value="{{ qs_date_to }}" required>
+                <button type="submit" class="{% if active_period == 'custom' %}active{% endif %}">Go</button>
+            </form>
+        </div>
+
         <!-- Call Stats — Donut + Chip Grid -->
         {% set booked_pct = (stats.booked / stats.total * 100) if stats.total else 0 %}
         {% set not_booked_pct = (stats.not_booked / stats.total * 100) if stats.total else 0 %}
@@ -45,9 +88,18 @@
                         <span class="chip-val" data-count="{{ stats.rate }}" data-suffix="%" style="color: #b197fc;">{{ stats.rate }}%</span>
                         <span class="chip-lbl">Conversion</span>
                     </div>
-                    <div class="stat-chip chip-full chip-highlight" style="border-left-color: #63e6be;">
+                    <div class="stat-chip chip-full chip-highlight" style="border-left-color: #63e6be; position: relative;">
                         <span class="chip-val" data-count="{{ stats.total_value }}" data-prefix="$" data-decimals="2" style="color: #63e6be;">${{ "%.2f"|format(stats.total_value) }}</span>
                         <span class="chip-lbl">Lead Cost</span>
+                        {% if stats.total_value > 0 %}
+                        <div class="value-breakdown">
+                            {% if stats.booking_value %}<div class="breakdown-row"><span>Bookings</span><span>${{ "%.2f"|format(stats.booking_value) }}</span></div>{% endif %}
+                            {% if stats.call_value %}<div class="breakdown-row"><span>Answered calls</span><span>${{ "%.2f"|format(stats.call_value) }}</span></div>{% endif %}
+                            {% if stats.voicemail_value %}<div class="breakdown-row"><span>Voicemails</span><span>${{ "%.2f"|format(stats.voicemail_value) }}</span></div>{% endif %}
+                            {% if stats.qualified_value %}<div class="breakdown-row"><span>Qualified calls</span><span>${{ "%.2f"|format(stats.qualified_value) }}</span></div>{% endif %}
+                            {% if stats.weekly_min_value %}<div class="breakdown-row"><span>Weekly minimums</span><span>${{ "%.2f"|format(stats.weekly_min_value) }}</span></div>{% endif %}
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -64,6 +116,7 @@
                         <th>Line</th>
                         {% endif %}
                         <th>Customer</th>
+                        <th>Caller Number</th>
                         <th>Duration</th>
                         <th>Classification</th>
                         <th>Booking Time</th>
@@ -73,16 +126,19 @@
                 </thead>
                 <tbody>
                     {% for call in calls %}
-                    <tr class="{% if call.classification == 'JOB_BOOKED' %}row-booked{% elif call.classification == 'NOT_BOOKED' %}row-not-booked{% endif %}">
-                        <td>{{ call.call_date.strftime('%d %b %Y %H:%M') if call.call_date else '—' }}</td>
+                    <tr class="{% if call.call_outcome == 'missed' %}row-missed{% elif call.classification == 'JOB_BOOKED' %}row-booked{% elif call.classification == 'NOT_BOOKED' %}row-not-booked{% endif %}">
+                        <td>{{ call.call_date|localtime('%-d %b %Y %-I:%M %p', tz=local_tz) }}</td>
                         {% if dashboard.tracking_lines | length > 1 %}
                         <td>{{ call.tracking_line.label if call.tracking_line else '—' }}</td>
                         {% endif %}
                         <td>{{ call.customer_name or '—' }}</td>
+                        <td>{{ call.caller_number or '—' }}</td>
                         <td>{{ '%d:%02d'|format(call.call_duration // 60, call.call_duration % 60) if call.call_duration else '—' }}</td>
                         <td>
-                            {% if call.classification == 'JOB_BOOKED' %}
-                            <mark class="badge-booked">Job Booked</mark>
+                            {% if call.call_outcome == 'missed' %}
+                            <mark class="badge-missed">Missed</mark>
+                            {% elif call.classification == 'JOB_BOOKED' %}
+                            <mark class="badge-booked">Booked</mark>
                             {% elif call.classification == 'NOT_BOOKED' %}
                             <mark class="badge-not-booked">Not Booked</mark>
                             {% elif call.classification == 'VOICEMAIL' %}
@@ -99,6 +155,22 @@
                 </tbody>
             </table>
         </figure>
+        {% if pagination.pages > 1 %}
+        <nav style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+            {% if pagination.has_prev %}
+            <a href="/proof/{{ share_token }}?page={{ pagination.prev_num }}{% for k, v in filters.items() %}&{{ k }}={{ v }}{% endfor %}" role="button" class="outline">&larr; Previous</a>
+            {% endif %}
+            <span style="align-self: center;">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+            {% if pagination.has_next %}
+            <a href="/proof/{{ share_token }}?page={{ pagination.next_num }}{% for k, v in filters.items() %}&{{ k }}={{ v }}{% endfor %}" role="button" class="outline">Next &rarr;</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+        <div style="text-align: right; margin-top: 1rem;">
+            <a href="/proof/{{ share_token }}/export?{% for k, v in filters.items() %}{{ k }}={{ v }}&{% endfor %}" role="button" class="outline" style="font-size: 0.85rem;">Export CSV</a>
+        </div>
+
         {% else %}
         <article>
             <p>No calls found for this period.</p>

@@ -24,10 +24,13 @@
             <article class="detail-card detail-card-info">
                 <h4>Call Info</h4>
                 <table>
-                    <tr><td><strong>Date</strong></td><td>{{ call.call_date.strftime('%d %b %Y %H:%M') if call.call_date else '—' }}</td></tr>
+                    <tr><td><strong>Date</strong></td><td>{{ call.call_date|localtime('%-d %b %Y %-I:%M %p', tz=local_tz) }}</td></tr>
                     <tr><td><strong>Duration</strong></td><td>{{ '%d:%02d'|format(call.call_duration // 60, call.call_duration % 60) if call.call_duration else '—' }}</td></tr>
                     {% if call.customer_name %}
                     <tr><td><strong>Customer</strong></td><td>{{ call.customer_name }}</td></tr>
+                    {% endif %}
+                    {% if call.caller_number %}
+                    <tr><td><strong>Caller Number</strong></td><td>{{ call.caller_number }}</td></tr>
                     {% endif %}
                     <tr><td><strong>Service Type</strong></td><td>{{ call.service_type or '—' }}</td></tr>
                 </table>
@@ -39,8 +42,10 @@
                     <tr>
                         <td><strong>Classification</strong></td>
                         <td>
-                            {% if call.classification == 'JOB_BOOKED' %}
-                            <mark class="badge-booked">Job Booked</mark>
+                            {% if call.call_outcome == 'missed' %}
+                            <mark class="badge-missed">Missed</mark>
+                            {% elif call.classification == 'JOB_BOOKED' %}
+                            <mark class="badge-booked">Booked</mark>
                             {% elif call.classification == 'NOT_BOOKED' %}
                             <mark class="badge-not-booked">Not Booked</mark>
                             {% elif call.classification == 'VOICEMAIL' %}
