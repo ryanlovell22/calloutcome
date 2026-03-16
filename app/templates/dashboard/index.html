@@ -140,19 +140,20 @@
 
 <!-- Calls Table -->
 {% if calls %}
+<div class="table-scroll">
 <figure>
     <table role="grid">
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Line</th>
-                <th>Partner</th>
-                <th>Caller</th>
+                <th class="col-line">Line</th>
+                <th class="col-partner">Partner</th>
+                <th class="col-caller">Caller</th>
                 <th>Customer</th>
-                <th>Duration</th>
+                <th class="col-duration">Duration</th>
                 <th>Status</th>
-                <th>Booking Time</th>
-                <th>Summary</th>
+                <th class="col-booking-time">Booking Time</th>
+                <th class="col-summary">Summary</th>
                 <th></th>
             </tr>
         </thead>
@@ -160,11 +161,11 @@
             {% for call in calls %}
             <tr class="{% if call.call_outcome == 'missed' %}row-missed{% elif call.classification == 'JOB_BOOKED' %}row-booked{% elif call.classification == 'NOT_BOOKED' %}row-not-booked{% endif %}">
                 <td>{{ call.call_date|localtime }}</td>
-                <td>{{ call.tracking_line.label if call.tracking_line else '—' }}</td>
-                <td>{{ call.tracking_line.partner.name if call.tracking_line and call.tracking_line.partner else '—' }}</td>
-                <td>{{ call.caller_number or '—' }}</td>
+                <td class="col-line">{{ call.tracking_line.label if call.tracking_line else '—' }}</td>
+                <td class="col-partner">{{ call.tracking_line.partner.name if call.tracking_line and call.tracking_line.partner else '—' }}</td>
+                <td class="col-caller">{{ call.caller_number or '—' }}</td>
                 <td>{{ call.customer_name or '—' }}</td>
-                <td>{{ '%d:%02d'|format(call.call_duration // 60, call.call_duration % 60) if call.call_duration else '—' }}</td>
+                <td class="col-duration">{{ '%d:%02d'|format(call.call_duration // 60, call.call_duration % 60) if call.call_duration else '—' }}</td>
                 <td>
                     {% if call.call_outcome == 'missed' %}
                         <mark class="badge-missed">Missed</mark>
@@ -184,14 +185,15 @@
                         <mark>Pending</mark>
                     {% endif %}
                 </td>
-                <td>{{ call.booking_time or '—' }}</td>
-                <td>{{ call.summary[:80] + '...' if call.summary and call.summary|length > 80 else call.summary or '—' }}</td>
+                <td class="col-booking-time">{{ call.booking_time or '—' }}</td>
+                <td class="col-summary">{{ call.summary[:80] + '...' if call.summary and call.summary|length > 80 else call.summary or '—' }}</td>
                 <td><a href="{{ url_for('dashboard.call_detail', call_id=call.id) }}">View</a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </figure>
+</div>
 {% if pagination.pages > 1 %}
 <nav style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
     {% if pagination.has_prev %}
