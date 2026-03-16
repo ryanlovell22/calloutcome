@@ -7,6 +7,7 @@ Independent of Twilio Conversational Intelligence — works with any audio sourc
 import json
 import logging
 import os
+import re
 import tempfile
 
 import requests
@@ -230,13 +231,28 @@ def classify_transcript(transcript_text, business_name=None, call_date=None, tra
         result_text = response.choices[0].message.content
         result = json.loads(result_text)
 
+        # Post-processing: null out customer_name if it matches the
+        # technician/partner name (GPT sometimes confuses the two)
+        customer_name = result.get("customer_name")
+        if customer_name:
+            blocked_names = set()
+            for src in (tradie_name, business_name):
+                if src:
+                    # Split on common separators (hyphen, dash, slash, comma)
+                    parts = re.split(r'[\s\-–—/,]+', src)
+                    for part in parts:
+                        if len(part) >= 2:  # skip single-char fragments
+                            blocked_names.add(part.lower())
+            if customer_name.strip().lower() in blocked_names:
+                customer_name = None
+
         return {
             "classification": result.get("classification"),
             "confidence": result.get("confidence"),
             "summary": result.get("summary"),
             "service_type": result.get("service_type"),
             "urgent": result.get("urgent", False),
-            "customer_name": result.get("customer_name"),
+            "customer_name": customer_name,
             "customer_address": result.get("customer_address"),
             "booking_time": result.get("booking_time"),
             "booking_date": result.get("booking_date"),
