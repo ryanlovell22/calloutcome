@@ -168,6 +168,8 @@
     grid-template-columns: 1fr 1fr;
     gap: 0.25rem 1rem;
     font-size: 0.85rem;
+    overflow: hidden;
+    min-width: 0;
 }
 .call-card-label {
     color: var(--pico-muted-color);
@@ -180,15 +182,22 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    min-width: 0;
+}
+.call-card-line {
+    grid-column: span 2;
+}
+.call-card-line .call-card-val {
+    white-space: normal;
+    word-wrap: break-word;
 }
 .call-card-summary {
     grid-column: span 2;
     margin-top: 0.3rem;
     font-size: 0.8rem;
     color: var(--pico-muted-color);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    white-space: normal;
+    word-wrap: break-word;
 }
 
 /* Flash messages */
