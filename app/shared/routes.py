@@ -54,8 +54,12 @@ def public_dashboard(share_token):
     qs_date_to = request.args.get("date_to")
     active_period = None
 
-    # Default to "this_week" when no filters are specified
-    if not period and not qs_date_from and not qs_date_to:
+    # Default to "this_week" only when no query-string filters AND no stored
+    # config — otherwise the dashboard's configured date range/window wins.
+    dashboard_has_config = bool(
+        (dashboard.date_from and dashboard.date_to) or dashboard.date_window_days is not None
+    )
+    if not period and not qs_date_from and not qs_date_to and not dashboard_has_config:
         period = "this_week"
 
     if period == "this_week":
@@ -316,8 +320,12 @@ def public_dashboard_export(share_token):
     qs_date_from = request.args.get("date_from")
     qs_date_to = request.args.get("date_to")
 
-    # Default to "this_week" when no filters are specified
-    if not period and not qs_date_from and not qs_date_to:
+    # Default to "this_week" only when no query-string filters AND no stored
+    # config — otherwise the dashboard's configured date range/window wins.
+    dashboard_has_config = bool(
+        (dashboard.date_from and dashboard.date_to) or dashboard.date_window_days is not None
+    )
+    if not period and not qs_date_from and not qs_date_to and not dashboard_has_config:
         period = "this_week"
 
     start_date = None
