@@ -143,12 +143,13 @@ def draft_already_exists(partner_id, period_start):
     try:
         results = stripe.Invoice.search(
             query=(
-                f"status:'draft' "
-                f"AND metadata['partner_id']:'{partner_id}' "
+                f"metadata['partner_id']:'{partner_id}' "
                 f"AND metadata['period_start']:'{period_start.isoformat()}'"
             )
         )
-        return bool(results.data)
+        # Filter to only active drafts (search index can return recently-deleted invoices)
+        active_drafts = [inv for inv in results.data if inv.status == 'draft']
+        return bool(active_drafts)
     except stripe.StripeError as e:
         logger.warning("Stripe search error (will proceed): %s", e)
         return False
@@ -212,13 +213,13 @@ def generate_invoice_for_partner(partner, account, period_start, period_end, dry
 
     # Add line items (even for $0 we leave the invoice empty — Stripe shows $0.00 due)
     if qty > 0 and unit_price > 0:
+        line_total_cents = int(round(unit_price * qty * 100))
         stripe.InvoiceItem.create(
             customer=partner.stripe_customer_id,
             invoice=invoice.id,
-            quantity=qty,
-            unit_amount=int(unit_price * 100),
+            amount=line_total_cents,
             currency='aud',
-            description=f'{line_desc}s',
+            description=f'{qty} x {line_desc} @ A${unit_price:.2f}',
         )
         # Weekly minimum top-up
         topup_cents = int(round((amount - unit_price * qty) * 100))
