@@ -55,9 +55,17 @@ def to_utc(local_date, local_tz, end_of_day=False):
     return local_dt.astimezone(pytz.utc)
 
 
-def get_call_stats(partner, account_id, dt_start_utc, dt_end_utc):
-    """Return call stats dict for a partner over the given UTC date range."""
-    line_ids = [l.id for l in partner.tracking_lines]
+def get_call_stats(partner, account_id, dt_start_utc, dt_end_utc, dashboard=None):
+    """Return call stats dict for a partner over the given UTC date range.
+
+    Uses the shared dashboard's tracking lines when available — these are what
+    the proof link shows, so the invoice should match them exactly.
+    Falls back to the partner's own assigned tracking lines.
+    """
+    if dashboard and dashboard.tracking_lines:
+        line_ids = [l.id for l in dashboard.tracking_lines]
+    else:
+        line_ids = [l.id for l in partner.tracking_lines]
     if not line_ids:
         return dict(calls=[], booked=0, not_booked=0, missed=0, answered=0, total=0,
                     conversion_pct=0, missed_pct=0)
@@ -161,15 +169,16 @@ def generate_invoice_for_partner(partner, account, period_start, period_end, dry
     dt_start_utc = to_utc(period_start, local_tz, end_of_day=False)
     dt_end_utc = to_utc(period_end, local_tz, end_of_day=True)
 
-    stats = get_call_stats(partner, account.id, dt_start_utc, dt_end_utc)
-    qty, unit_price, line_desc, amount = calculate_amount(partner, stats)
-
-    # Get shared dashboard URL (fixed date params so it always shows the right week)
+    # Fetch dashboard first — its tracking lines determine what gets billed
     dashboard = SharedDashboard.query.filter_by(
         account_id=account.id,
         partner_id=partner.id,
         active=True,
     ).first()
+
+    stats = get_call_stats(partner, account.id, dt_start_utc, dt_end_utc, dashboard=dashboard)
+    qty, unit_price, line_desc, amount = calculate_amount(partner, stats)
+
     dashboard_url = None
     if dashboard:
         dashboard_url = (
