@@ -29,6 +29,8 @@ def add():
         weekly_minimum_calls = request.form.get("weekly_minimum_calls") or 0
         qualified_call_seconds = request.form.get("qualified_call_seconds") or 60
         cost_per_qualified_call = request.form.get("cost_per_qualified_call") or 0
+        pricing_model = request.form.get("pricing_model", "standard").strip()
+        stripe_customer_id = request.form.get("stripe_customer_id", "").strip() or None
 
         if not name:
             flash("Name is required.", "error")
@@ -44,6 +46,8 @@ def add():
             weekly_minimum_calls=weekly_minimum_calls,
             qualified_call_seconds=qualified_call_seconds,
             cost_per_qualified_call=cost_per_qualified_call,
+            pricing_model=pricing_model,
+            stripe_customer_id=stripe_customer_id,
         )
         db.session.add(partner)
         db.session.commit()
@@ -71,6 +75,8 @@ def edit(partner_id):
         weekly_minimum_calls = request.form.get("weekly_minimum_calls") or 0
         qualified_call_seconds = request.form.get("qualified_call_seconds") or 60
         cost_per_qualified_call = request.form.get("cost_per_qualified_call") or 0
+        pricing_model = request.form.get("pricing_model", "standard").strip()
+        stripe_customer_id = request.form.get("stripe_customer_id", "").strip() or None
 
         if not name:
             flash("Name is required.", "error")
@@ -84,6 +90,8 @@ def edit(partner_id):
         partner.weekly_minimum_calls = weekly_minimum_calls
         partner.qualified_call_seconds = qualified_call_seconds
         partner.cost_per_qualified_call = cost_per_qualified_call
+        partner.pricing_model = pricing_model
+        partner.stripe_customer_id = stripe_customer_id
         db.session.commit()
 
         flash(f"Partner '{name}' updated.", "success")

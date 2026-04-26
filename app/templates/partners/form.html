@@ -12,10 +12,18 @@
         <fieldset>
             <legend>Pricing</legend>
             <p style="color: var(--pico-muted-color); font-size: 0.875rem; margin-top: -0.5rem;">
-                Fill in one or both depending on how you charge this partner.
+                Set the pricing model and rates for this partner.
             </p>
 
-            <label for="cost_per_lead">Per booked job ($)</label>
+            <label for="pricing_model">Pricing model</label>
+            <select id="pricing_model" name="pricing_model">
+                <option value="standard" {% if not partner or partner.pricing_model in ('standard', 'per_lead', None) %}selected{% endif %}>Per booked job</option>
+                <option value="per_call" {% if partner and partner.pricing_model == 'per_call' %}selected{% endif %}>Per answered call</option>
+                <option value="per_qualified_call" {% if partner and partner.pricing_model == 'per_qualified_call' %}selected{% endif %}>Per qualified call</option>
+            </select>
+            <small style="color: var(--pico-muted-color);">Determines how the weekly invoice amount is calculated.</small>
+
+            <label for="cost_per_lead" style="margin-top: 1rem;">Per booked job ($)</label>
             <input type="number" id="cost_per_lead" name="cost_per_lead" step="0.01" min="0"
                    value="{{ '%.2f'|format(partner.cost_per_lead) if partner and partner.cost_per_lead else '' }}"
                    placeholder="e.g. 50.00">
@@ -74,6 +82,18 @@
                     <small style="color: var(--pico-muted-color);">Charged for calls lasting at least the specified number of seconds.</small>
                 </div>
             </details>
+        </fieldset>
+
+        <fieldset>
+            <legend>Billing</legend>
+            <label for="stripe_customer_id">
+                Stripe Customer ID
+                <input type="text" id="stripe_customer_id" name="stripe_customer_id"
+                       placeholder="cus_..."
+                       value="{{ partner.stripe_customer_id or '' if partner else '' }}"
+                       autocomplete="off">
+                <small style="color: var(--pico-muted-color);">Paste the <code>cus_...</code> ID from Stripe. Required for automated weekly invoicing.</small>
+            </label>
         </fieldset>
 
         <button type="submit">{{ 'Save' if partner else 'Create Partner' }}</button>

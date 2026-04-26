@@ -122,6 +122,8 @@ class Partner(db.Model):
     qualified_call_seconds = db.Column(db.Integer, default=60)
     cost_per_qualified_call = db.Column(db.Numeric(10, 2), default=0)
 
+    stripe_customer_id = db.Column(db.String(255), nullable=True)
+
     created_at = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc)
     )
